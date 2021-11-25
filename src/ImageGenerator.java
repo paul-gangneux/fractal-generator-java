@@ -59,7 +59,7 @@ public class ImageGenerator {
                 double x = ((i*2-sx)*zoom)/(width);
                 double y = ((j*2-sy)*zoom)/(height);
                 int val = f.doublesToInt(x,y);
-                val = ((val-min)*256)/(max-min);
+                val = ((val-min)*255)/(max-min);
                 int col = valueToColor(val);
                 img.setRGB(i,j,col);
             }
