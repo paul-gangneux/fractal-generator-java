@@ -10,12 +10,10 @@ public class ImageGenerator {
     private double zoom;
     private double shiftX, shiftY;
 
-    private static int imageNb=0;
-
     public ImageGenerator() {
         // valeurs par défaut
-        width = 100;
-        height = 100;
+        width = 500;
+        height = 500;
         zoom = 1;
         shiftX = 0;
         shiftY = 0;
@@ -42,10 +40,11 @@ public class ImageGenerator {
     // changer cette fonction changera le rendu
     // peut être utile pour faire de jolis effets
     private int valueToColor(int v) {
-        return rgbToInt(0, v, 255-v);
+        if (v==255) return 0;
+        return rgbToInt(0, 255-v, v);
     }
     
-    public void create(TwoDoublesToInt f) {
+    public void create(TwoDoublesToInt f, String pathname) {
         
         var img=new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         int max = f.maxValue();
@@ -60,14 +59,13 @@ public class ImageGenerator {
                 double x = ((i*2-sx)*zoom)/(width);
                 double y = ((j*2-sy)*zoom)/(height);
                 int val = f.doublesToInt(x,y);
-                val = ((val-min)*255)/(max-min);
+                val = ((val-min)*256)/(max-min);
                 int col = valueToColor(val);
                 img.setRGB(i,j,col);
             }
         }
 
-        imageNb++;
-        File file = new File("images/image"+imageNb+".png"); // todo: faire un chemin plus intelligent
+        File file = new File(pathname); // todo: faire un chemin plus intelligent
         try {
             ImageIO.write(img, "PNG", file);
         } catch (IOException e) {
