@@ -1,5 +1,5 @@
 Main: images src/Main.java
-	javac src/Main.java -d bld/
+	javac src/*.java -d bld/
 
 ./PHONY: clean
 clean:
@@ -7,3 +7,7 @@ clean:
 
 images:
 	mkdir images/
+
+./PHONY: run
+run: Main
+	java -classpath bld Main
