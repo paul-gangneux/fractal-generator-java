@@ -17,7 +17,7 @@ public class ImageGenerator {
 
     private class Work extends RecursiveAction {
 
-        private static final int THRESHOLD = 8;
+        private static final int THRESHOLD = 32;
         private int hmin;
         private int hmax;
         private double sx; //shift x
@@ -45,10 +45,7 @@ public class ImageGenerator {
         @Override
         protected void compute() {
             if (hmax-hmin>THRESHOLD) {
-                Work w1 = new Work(hmin, (hmin+hmax)/2, sx, sy);
-                Work w2 = new Work((hmin+hmax)/2, hmax, sx, sy);
-                w1.fork();
-                w2.fork();
+                invokeAll(new Work(hmin, (hmin+hmax)/2, sx, sy), new Work((hmin+hmax)/2, hmax, sx, sy));
             } else {
                 int min = function.minValue();
                 int max = function.maxValue();
@@ -104,16 +101,7 @@ public class ImageGenerator {
         RecursiveAction work = new Work(0, height, sx, sy);
         ForkJoinPool pool = new ForkJoinPool();
 
-        pool.invoke(work);
-
-        // s'assure que tous les thread terminent
-        pool.shutdown();
-        try {
-            pool.awaitTermination(100, TimeUnit.SECONDS);
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
-        
+        pool.invoke(work);        
         
         File file = new File(pathname);
         try {
