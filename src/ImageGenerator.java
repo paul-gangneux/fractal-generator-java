@@ -15,11 +15,12 @@ public class ImageGenerator {
     private TwoDoublesToInt function;
     private BufferedImage image;
 
+    private int threshold;
+
     private boolean antiAliasing;
 
-    private class Work extends RecursiveAction {
+    private class MainWork extends RecursiveAction {
 
-        private static final int THRESHOLD = 32;
         private int hmin;
         private int hmax;
         private double sx; //shift x
@@ -27,12 +28,14 @@ public class ImageGenerator {
     
         /// changer cette fonction changera le rendu
         // peut être utile pour faire de jolis effets
+        /*
         private int valueToColor(int v) {
             if (v>255 || v<0) return 0xff0000; //cas erreur
             if (v==255) return 0;
             return rgbToInt(255-v, 255-v, v);
             
         }
+        */
 
         private int valueToColor(int v, int min, int max) {
             if (v<min || v>max) return 0x000000; //cas erreur
@@ -40,7 +43,7 @@ public class ImageGenerator {
             return Color.HSBtoRGB((float)(v+min)/max, 0.8f, 0.7f);
         }
 
-        public Work(int hmin, int hmax, double sx, double sy) {
+        public MainWork(int hmin, int hmax, double sx, double sy) {
             this.hmin = hmin;
             this.hmax = hmax;
             this.sx = sx;
@@ -49,10 +52,10 @@ public class ImageGenerator {
 
         @Override
         protected void compute() {
-            if (hmax-hmin>THRESHOLD) {
+            if (hmax-hmin>threshold) {
                 invokeAll(
-                    new Work(hmin, (hmin+hmax)/2, sx, sy),
-                    new Work((hmin+hmax)/2, hmax, sx, sy));
+                    new MainWork(hmin, (hmin+hmax)/2, sx, sy),
+                    new MainWork((hmin+hmax)/2, hmax, sx, sy));
             } else {
                 int min = function.minValue();
                 int max = function.maxValue();
@@ -61,13 +64,51 @@ public class ImageGenerator {
                         double x = ((i*2-sx)*zoom)/(width);
                         double y = ((j*2-sy)*zoom)/(height);
                         int val = function.doublesToInt(x,y);
-                        //val = ((val-min)*255)/(max-min);
                         int col = valueToColor(val, min, max);
                         image.setRGB(i,j,col);
                     }
                 }
             }
         }
+    }
+
+    private class AntiAliasingWork extends RecursiveAction {
+
+        private int hmin, hmax;
+        private transient BufferedImage buffer;
+
+        public AntiAliasingWork(int hmin, int hmax, BufferedImage buffer) {
+            this.hmin = hmin;
+            this.hmax = hmax;
+            this.buffer = buffer;
+        }
+
+        @Override
+        protected void compute() {
+            if (hmax-hmin>threshold) {
+                invokeAll(
+                    new AntiAliasingWork(hmin, (hmin+hmax)/2, buffer),
+                    new AntiAliasingWork((hmin+hmax)/2, hmax, buffer));
+            } else {
+                for (int i = 0; i < width; i++) {
+                    for (int j = hmin; j < hmax; j++) {
+                        int p1, p2, p3, p4;
+                        p1 = image.getRGB(i*2, j*2);
+                        p2 = image.getRGB(i*2+1, j*2);
+                        p3 = image.getRGB(i*2, j*2+1);
+                        p4 = image.getRGB(i*2+1, j*2+1);
+    
+                        int pR = extractAndSumRed(p1, p2, p3, p4) / 4;
+                        int pG = extractAndSumGreen(p1, p2, p3, p4) / 4;
+                        int pB = extractAndSumBlue(p1, p2, p3, p4) / 4;
+                        
+                        int pixel = rgbToInt(pR,pG,pB);
+                        buffer.setRGB(i, j, pixel);
+                    }
+                }
+            }
+        }
+        
     }
 
     public ImageGenerator() {
@@ -78,6 +119,7 @@ public class ImageGenerator {
         shiftX = 0;
         shiftY = 0;
         antiAliasing = false;
+        threshold = 64;
     }
 
     // setters
@@ -145,6 +187,8 @@ public class ImageGenerator {
         function=f;
         BufferedImage smol=null;
 
+        int threadsNb = Runtime.getRuntime().availableProcessors();
+
         if (antiAliasing) {
             smol=new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             height *=2;
@@ -156,7 +200,8 @@ public class ImageGenerator {
         double sx = width*shiftX*2.0/zoom+width;
         double sy = height*shiftY*2.0/zoom+height;
 
-        RecursiveAction work = new Work(0, height, sx, sy);
+        threshold = height/threadsNb;
+        RecursiveAction work = new MainWork(0, height, sx, sy);
         ForkJoinPool pool = new ForkJoinPool();
 
         pool.invoke(work);        
@@ -164,22 +209,10 @@ public class ImageGenerator {
         if (antiAliasing) {
             height /=2;
             width /=2;
-            for (int i = 0; i < width; i++) {
-                for (int j = 0; j < height; j++) {
-                    int p1, p2, p3, p4;
-                    p1 = image.getRGB(i*2, j*2);
-                    p2 = image.getRGB(i*2+1, j*2);
-                    p3 = image.getRGB(i*2, j*2+1);
-                    p4 = image.getRGB(i*2+1, j*2+1);
-
-                    int pR = extractAndSumRed(p1, p2, p3, p4) / 4;
-                    int pG = extractAndSumGreen(p1, p2, p3, p4) / 4;
-                    int pB = extractAndSumBlue(p1, p2, p3, p4) / 4;
-                    
-                    int pixel = rgbToInt(pR,pG,pB);
-                    smol.setRGB(i, j, pixel);
-                }
-            }
+            threshold = height/threadsNb;
+            RecursiveAction aawork = new AntiAliasingWork(0, height, smol);
+            ForkJoinPool pool2 = new ForkJoinPool();
+            pool2.invoke(aawork);  
             image = smol;
         }
         
