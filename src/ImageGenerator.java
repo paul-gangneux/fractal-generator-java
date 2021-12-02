@@ -15,6 +15,8 @@ public class ImageGenerator {
     private TwoDoublesToInt function;
     private BufferedImage image;
 
+    private boolean antiAliasing;
+
     private class Work extends RecursiveAction {
 
         private static final int THRESHOLD = 32;
@@ -22,10 +24,6 @@ public class ImageGenerator {
         private int hmax;
         private double sx; //shift x
         private double sy; //shift y
-        
-        private int rgbToInt(int r, int g, int b) {
-            return (r << 16) | (g << 8) | b;
-        }
     
         /// changer cette fonction changera le rendu
         // peut être utile pour faire de jolis effets
@@ -79,6 +77,7 @@ public class ImageGenerator {
         zoom = 1;
         shiftX = 0;
         shiftY = 0;
+        antiAliasing = false;
     }
 
     // setters
@@ -87,6 +86,7 @@ public class ImageGenerator {
     public void setZoom(double zoom) {this.zoom = zoom;}
     public void setShiftX(double shiftX) {this.shiftX = shiftX;}
     public void setShiftY(double shiftY) {this.shiftY = shiftY;}
+    public void setAntiAliasing(boolean antiAliasing) {this.antiAliasing = antiAliasing;}
 
     // getters
     public int getWidth() {return width;}
@@ -94,15 +94,64 @@ public class ImageGenerator {
     public double getZoom() {return zoom;}
     public double getShiftX() {return shiftX;}
     public double getShiftY() {return shiftY;}
+    public boolean getAntiAliasing() {return antiAliasing;}
 
-    
+    private int rgbToInt(int r, int g, int b) {
+        return (r << 16) | (g << 8) | b;
+    }
+
+    // ces fonction extraient les composantes R, G et B depuis la valeur d'un pixel
+
+    private int extractRed(int color) {
+        return (color & 0xFF0000)>>16;
+    }
+
+    private int extractGreen(int color) {
+        return (color & 0x00FF00)>>8;
+    }
+
+    private int extractBlue(int color) {
+        return (color & 0x0000FF);
+    }
+
+    // somme les valeurs R, G ou B de plusieurs couleurs
+
+    private int extractAndSumRed(int ... colors) {
+        int sum = 0;
+        for (int c : colors) {
+            sum += extractRed(c);
+        }
+        return sum;
+    }
+
+    private int extractAndSumGreen(int ... colors) {
+        int sum = 0;
+        for (int c : colors) {
+            sum += extractGreen(c);
+        }
+        return sum;
+    }
+
+    private int extractAndSumBlue(int ... colors) {
+        int sum = 0;
+        for (int c : colors) {
+            sum += extractBlue(c);
+        }
+        return sum;
+    }
+
     public void create(TwoDoublesToInt f, String pathname) {
 
         function=f;
+        BufferedImage smol=null;
+
+        if (antiAliasing) {
+            smol=new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            height *=2;
+            width *=2;
+        }
         
         image=new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        //int max = f.maxValue();
-        //int min = f.minValue();
     
         double sx = width*shiftX*2.0/zoom+width;
         double sy = height*shiftY*2.0/zoom+height;
@@ -111,6 +160,28 @@ public class ImageGenerator {
         ForkJoinPool pool = new ForkJoinPool();
 
         pool.invoke(work);        
+
+        if (antiAliasing) {
+            height /=2;
+            width /=2;
+            for (int i = 0; i < width; i++) {
+                for (int j = 0; j < height; j++) {
+                    int p1, p2, p3, p4;
+                    p1 = image.getRGB(i*2, j*2);
+                    p2 = image.getRGB(i*2+1, j*2);
+                    p3 = image.getRGB(i*2, j*2+1);
+                    p4 = image.getRGB(i*2+1, j*2+1);
+
+                    int pR = extractAndSumRed(p1, p2, p3, p4) / 4;
+                    int pG = extractAndSumGreen(p1, p2, p3, p4) / 4;
+                    int pB = extractAndSumBlue(p1, p2, p3, p4) / 4;
+                    
+                    int pixel = rgbToInt(pR,pG,pB);
+                    smol.setRGB(i, j, pixel);
+                }
+            }
+            image = smol;
+        }
         
         File file = new File(pathname);
         try {
