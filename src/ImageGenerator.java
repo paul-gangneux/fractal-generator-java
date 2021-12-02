@@ -2,10 +2,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
-import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.Color;
 
 public class ImageGenerator {
 
@@ -27,12 +27,19 @@ public class ImageGenerator {
             return (r << 16) | (g << 8) | b;
         }
     
-        // changer cette fonction changera le rendu
+        /// changer cette fonction changera le rendu
         // peut être utile pour faire de jolis effets
         private int valueToColor(int v) {
             if (v>255 || v<0) return 0xff0000; //cas erreur
             if (v==255) return 0;
-            return rgbToInt(0, 255-v, v);
+            return rgbToInt(255-v, 255-v, v);
+            
+        }
+
+        private int valueToColor(int v, int min, int max) {
+            if (v<min || v>max) return 0x000000; //cas erreur
+            if (v==max) return 0;
+            return Color.HSBtoRGB((float)(v+min)/max, 0.8f, 0.7f);
         }
 
         public Work(int hmin, int hmax, double sx, double sy) {
@@ -45,7 +52,9 @@ public class ImageGenerator {
         @Override
         protected void compute() {
             if (hmax-hmin>THRESHOLD) {
-                invokeAll(new Work(hmin, (hmin+hmax)/2, sx, sy), new Work((hmin+hmax)/2, hmax, sx, sy));
+                invokeAll(
+                    new Work(hmin, (hmin+hmax)/2, sx, sy),
+                    new Work((hmin+hmax)/2, hmax, sx, sy));
             } else {
                 int min = function.minValue();
                 int max = function.maxValue();
@@ -54,8 +63,8 @@ public class ImageGenerator {
                         double x = ((i*2-sx)*zoom)/(width);
                         double y = ((j*2-sy)*zoom)/(height);
                         int val = function.doublesToInt(x,y);
-                        val = ((val-min)*255)/(max-min);
-                        int col = valueToColor(val);
+                        //val = ((val-min)*255)/(max-min);
+                        int col = valueToColor(val, min, max);
                         image.setRGB(i,j,col);
                     }
                 }
