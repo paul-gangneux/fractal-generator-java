@@ -15,7 +15,12 @@ public class ImageGenerator {
     private TwoDoublesToInt function;
     private BufferedImage image;
 
-    private int threshold;
+    private double x1,y1;
+    private double x2,y2;
+
+    private double delta;
+
+    private int threshold; // pour le multithreading
 
     private boolean antiAliasing;
 
@@ -23,11 +28,9 @@ public class ImageGenerator {
 
         private int hmin;
         private int hmax;
-        private double sx; //shift x
-        private double sy; //shift y
-    
-        /// changer cette fonction changera le rendu
-        // peut être utile pour faire de jolis effets
+        private double ox;
+        private double oy;
+
         /*
         private int valueToColor(int v) {
             if (v>255 || v<0) return 0xff0000; //cas erreur
@@ -37,36 +40,41 @@ public class ImageGenerator {
         }
         */
 
+        public MainWork(int hmin, int hmax, double ox, double oy) {
+            this.hmin = hmin;
+            this.hmax = hmax;
+            this.ox = ox;
+            this.oy = oy;
+        }
+
         private int valueToColor(int v, int min, int max) {
             if (v<min || v>max) return 0x000000; //cas erreur
             if (v==max) return 0;
             return Color.HSBtoRGB((float)(v+min)/max, 0.8f, 0.7f);
-        }
-
-        public MainWork(int hmin, int hmax, double sx, double sy) {
-            this.hmin = hmin;
-            this.hmax = hmax;
-            this.sx = sx;
-            this.sy = sy;
-        }
+        }     
 
         @Override
         protected void compute() {
             if (hmax-hmin>threshold) {
                 invokeAll(
-                    new MainWork(hmin, (hmin+hmax)/2, sx, sy),
-                    new MainWork((hmin+hmax)/2, hmax, sx, sy));
+                    new MainWork(hmin, (hmin+hmax)/2, ox, oy),
+                    new MainWork((hmin+hmax)/2, hmax, ox, oy));
             } else {
                 int min = function.minValue();
                 int max = function.maxValue();
+                double x = ox;
+                double yReset = oy + hmin*delta*zoom;
+                double y = yReset;
+
                 for (int i=0; i<width; i++) {
                     for (int j=hmin; j<hmax; j++) {
-                        double x = ((i*2-sx)*zoom)/(width);
-                        double y = ((j*2-sy)*zoom)/(height);
                         int val = function.doublesToInt(x,y);
                         int col = valueToColor(val, min, max);
                         image.setRGB(i,j,col);
+                        y += delta*zoom;
                     }
+                    x += delta*zoom;
+                    y = yReset;
                 }
             }
         }
@@ -98,9 +106,9 @@ public class ImageGenerator {
                         p3 = image.getRGB(i*2, j*2+1);
                         p4 = image.getRGB(i*2+1, j*2+1);
     
-                        int pR = extractAndSumRed(p1, p2, p3, p4) / 4;
-                        int pG = extractAndSumGreen(p1, p2, p3, p4) / 4;
-                        int pB = extractAndSumBlue(p1, p2, p3, p4) / 4;
+                        int pR = averageRed(p1, p2, p3, p4);
+                        int pG = averageGreen(p1, p2, p3, p4);
+                        int pB = averageBlue(p1, p2, p3, p4);
                         
                         int pixel = rgbToInt(pR,pG,pB);
                         buffer.setRGB(i, j, pixel);
@@ -108,27 +116,60 @@ public class ImageGenerator {
                 }
             }
         }
-        
     }
 
     public ImageGenerator() {
         // valeurs par défaut
-        width = 500;
-        height = 500;
         zoom = 1;
         shiftX = 0;
         shiftY = 0;
         antiAliasing = false;
         threshold = 64;
+        
+        x1 = -1; y1 = -1;
+        x2 = 1; y2 = 1;
+        setDelta(0.01); // set height et width automatiquement
     }
 
     // setters
-    public void setWidth(int width) {this.width = width;}
-    public void setHeight(int height) {this.height = height;}
-    public void setZoom(double zoom) {this.zoom = zoom;}
+    public void setWidth(int width) {
+        if (width<1) return;
+        x2 = x1 + width*delta;
+        this.width = width;
+    }
+    public void setHeight(int height) {
+        if (height<1) return;
+        y2 = y1 + height*delta;
+        this.height = height;
+    }
+    public void setZoom(double zoom) {
+        if (zoom>0) this.zoom = zoom;
+    }
     public void setShiftX(double shiftX) {this.shiftX = shiftX;}
     public void setShiftY(double shiftY) {this.shiftY = shiftY;}
     public void setAntiAliasing(boolean antiAliasing) {this.antiAliasing = antiAliasing;}
+    public void setPoint1(double x, double y) {
+        if (x > x2-delta) x1 = x2-delta;
+        else x1=x;
+        if (y > y2-delta) y1 = y2-delta;
+        else y1 = y;
+        width = (int)((x2-x1)/delta);
+        height = (int)((y2-y1)/delta);
+    }
+    public void setPoint2(double x, double y) {
+        if (x < x1+delta) x2 = x1+delta;
+        else x2 = x;
+        if (y < y1+delta) y2 = y1+delta;
+        else y2 = y;
+        width = (int)((x2-x1)/delta);
+        height = (int)((y2-y1)/delta);
+    }
+    public void setDelta(double d) {
+        if (d <= 0) return;
+        delta = d;
+        width = (int)((x2 - x1) / d);
+        height = (int)((y2 - y1) / d);
+    }
 
     // getters
     public int getWidth() {return width;}
@@ -156,32 +197,33 @@ public class ImageGenerator {
         return (color & 0x0000FF);
     }
 
-    // somme les valeurs R, G ou B de plusieurs couleurs
+    // somme les valeurs R, G ou B de plusieurs couleurs, puis renvoie leur moyenne
 
-    private int extractAndSumRed(int ... colors) {
+    private int averageRed(int ... colors) {
         int sum = 0;
         for (int c : colors) {
             sum += extractRed(c);
         }
-        return sum;
+        return sum / colors.length;
     }
 
-    private int extractAndSumGreen(int ... colors) {
+    private int averageGreen(int ... colors) {
         int sum = 0;
         for (int c : colors) {
             sum += extractGreen(c);
         }
-        return sum;
+        return sum / colors.length;
     }
 
-    private int extractAndSumBlue(int ... colors) {
+    private int averageBlue(int ... colors) {
         int sum = 0;
         for (int c : colors) {
             sum += extractBlue(c);
         }
-        return sum;
+        return sum / colors.length;
     }
 
+    //todo : commenter le code sinon olivier va me taper (mais là j'ai la flemme)
     public void create(TwoDoublesToInt f, String pathname) {
 
         function=f;
@@ -193,15 +235,16 @@ public class ImageGenerator {
             smol=new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             height *=2;
             width *=2;
+            delta /= 2;
         }
         
         image=new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     
-        double sx = width*shiftX*2.0/zoom+width;
-        double sy = height*shiftY*2.0/zoom+height;
+        double ox = x1 + (1-zoom)*(x2-x1)/2 + shiftX;
+        double oy = y1 + (1-zoom)*(y2-y1)/2 + shiftY;
 
         threshold = height/threadsNb;
-        RecursiveAction work = new MainWork(0, height, sx, sy);
+        RecursiveAction work = new MainWork(0, height, ox, oy);
         ForkJoinPool pool = new ForkJoinPool();
 
         pool.invoke(work);        
@@ -209,6 +252,7 @@ public class ImageGenerator {
         if (antiAliasing) {
             height /=2;
             width /=2;
+            delta *=2;
             threshold = height/threadsNb;
             RecursiveAction aawork = new AntiAliasingWork(0, height, smol);
             ForkJoinPool pool2 = new ForkJoinPool();
