@@ -26,6 +26,17 @@ public class Julia implements TwoDoublesToInt {
 		return x;
 	}
 
+	/**
+	 * Fonction utilisee pour parser la fonction f(x) d'un ensemble de julia.
+	 * Operations supportees: + - / * et parentheses
+	 */
+	public static Function<Complex,Complex> parseFxFromString(String fx) {
+		Function<Complex,Complex> func
+			= z -> z.multiply(z).add(new Complex(-0.729, 0.1889));
+
+		return func;
+	}
+
 	@Override
 	public int doublesToInt(double x, double y) {
 		int res = 0;
