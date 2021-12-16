@@ -29,7 +29,7 @@ public class Julia implements TwoDoublesToInt {
    */
   public static Function<Complex, Complex> parseFxFromString(String fx) {
     // On parse en notation polonaise
-    String[] f = fx.split("(|)");
+    String[] f = fx.split(" ");
 
     for (String a : f) {
       System.out.println(a);
