@@ -1,4 +1,4 @@
-Main: images src/Main.java
+Main: images src/Main.java format
 	javac src/*.java -d bld/
 
 ./PHONY: clean
@@ -18,3 +18,14 @@ TestMain: src/TestMain.java
 ./PHONY: test
 test: TestMain
 	java -classpath bld TestMain
+
+format:
+	java \
+		--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
+		--add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
+		--add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
+		--add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
+		--add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED \
+		-jar tools/google-java-format-1.13.0-all-deps.jar \
+		--replace \
+		src/*.java
