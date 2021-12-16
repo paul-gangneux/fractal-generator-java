@@ -264,7 +264,6 @@ public class ImageGenerator {
         return sum / colors.length;
     }
 
-    //todo : commenter le code sinon olivier va me taper (mais là j'ai la flemme)
     public void create(TwoDoublesToInt f, String pathname) {
 
         function=f;

@@ -2,7 +2,9 @@
 // maxValue() et minValue renvoient les valeurs min et max
 // retournés par la fonction applyAsInt
 public interface TwoDoublesToInt {
-    int doublesToInt(double x, double y);
-    int maxValue();
-    int minValue();
+  int doublesToInt(double x, double y);
+
+  int maxValue();
+
+  int minValue();
 }
