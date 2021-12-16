@@ -28,8 +28,14 @@ public class Julia implements TwoDoublesToInt {
    * - / * et parentheses
    */
   public static Function<Complex, Complex> parseFxFromString(String fx) {
-    Function<Complex, Complex> func = z -> z.multiply(z).add(new Complex(-0.729, 0.1889));
+    // On parse en notation polonaise
+    String[] f = fx.split("(|)");
 
+    for (String a : f) {
+      System.out.println(a);
+    }
+
+    Function<Complex, Complex> func = z -> z.multiply(z).add(new Complex(-0.729, 0.1889));
     return func;
   }
 
