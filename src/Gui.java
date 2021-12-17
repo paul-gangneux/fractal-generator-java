@@ -121,7 +121,7 @@ public class Gui extends JFrame {
 
     JFormattedTextField zoomLevel;
     zoomLevel = new JFormattedTextField(new DecimalFormat("#.##############"));
-    zoomLevel.setValue(1.0);
+    zoomLevel.setValue(ig.getZoom());
     zoomLevel.setColumns(10);
 
     zoomLevel.addActionListener(
@@ -156,6 +156,11 @@ public class Gui extends JFrame {
     // bouton anti-aliasing
     String[] aaOptions = {"aucun", "x2", "x3", "x4", "x5", "x6", "x7", "x8"};
     JComboBox<String> antiAliBox = new JComboBox<>(aaOptions);
+
+    int ind;
+    if (!ig.getAntiAliasing()) ind = 0;
+    else ind = ig.getAntiAliasingAmount() - 1;
+    antiAliBox.setSelectedIndex(ind);
 
     antiAliBox.addActionListener(
         event -> {
