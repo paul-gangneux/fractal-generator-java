@@ -170,6 +170,8 @@ public class Gui extends JFrame {
             ig.setAntiAliasing(true);
             ig.setAntiAliasingAmount(i + 1);
           }
+          // permet de permet les inputs utilisateurs pendant le chargement
+          antiAliBox.getUI().setPopupVisible(antiAliBox, false);
           fractal.recalculate();
         });
 
