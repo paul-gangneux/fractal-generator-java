@@ -126,7 +126,7 @@ public class ImageGenerator {
     y1 = -1;
     x2 = 1;
     y2 = 1;
-    setstep(0.01); // set height et width automatiquement
+    setstep(0.005); // set height et width automatiquement
 
     setValueToColorDefaultFunction();
   }
@@ -217,6 +217,10 @@ public class ImageGenerator {
         };
   }
 
+  public void setFractalGenerationFunction(TwoDoublesToInt f) {
+    function = f;
+  }
+
   // getters
   public int getWidth() {
     return width;
@@ -244,6 +248,28 @@ public class ImageGenerator {
 
   public int getAntiAliasingAmount() {
     return aa_amount;
+  }
+
+  public double getStep() {
+    return step;
+  }
+
+  public BufferedImage getImage() {
+    return image;
+  }
+
+  public BufferedImage getImageWithShift(int x, int y) {
+    BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+    int xstart = (x > 0) ? x : 0;
+    int ystart = (y > 0) ? y : 0;
+    int xend = (width + x < width) ? width + x : width;
+    int yend = (height + y < height) ? height + y : height;
+    for (int i = xstart; i < xend; i++) {
+      for (int j = ystart; j < yend; j++) {
+        img.setRGB(i, j, image.getRGB(i - x, j - y));
+      }
+    }
+    return img;
   }
 
   private int rgbToInt(int r, int g, int b) {
@@ -290,9 +316,10 @@ public class ImageGenerator {
     return sum / colors.length;
   }
 
-  public void create(TwoDoublesToInt f, String pathname) {
+  // calculate fractal and put it in buffer
+  public void generateBuffer() {
 
-    function = f;
+    if (function == null) return;
     BufferedImage smol = null;
 
     int threadsNb = Runtime.getRuntime().availableProcessors();
@@ -325,13 +352,15 @@ public class ImageGenerator {
       pool2.invoke(aawork);
       image = smol;
     }
+  }
 
+  // creates image from buffer
+  public void createImage(String pathname) {
     File file = new File(pathname);
     try {
       ImageIO.write(image, "PNG", file);
     } catch (IOException e) {
       e.printStackTrace();
     }
-    image = null;
   }
 }
