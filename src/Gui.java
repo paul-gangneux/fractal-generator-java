@@ -1,14 +1,15 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 
 public class Gui extends JFrame {
 
-  private transient ImageGenerator ig;
-  private JPanel buttonPanel = new JPanel();
+  private final transient ImageGenerator ig;
   private FractalImage fractal;
+  JFrame thisJframe = this;
 
   private class FractalImage extends JLabel implements MouseInputListener {
 
@@ -44,8 +45,10 @@ public class Gui extends JFrame {
 
     public void recalculate() {
       calculating = true;
+      thisJframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
       setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
       ig.generateBuffer();
+      thisJframe.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
       img = ig.getImage();
       setIcon(new ImageIcon(img));
@@ -109,9 +112,48 @@ public class Gui extends JFrame {
     setLayout(new FlowLayout());
     fractal = new FractalImage();
 
+    JPanel buttonPanel = new JPanel();
     BoxLayout boxLayout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
     buttonPanel.setLayout(boxLayout);
 
+    // bouttons zoom
+    JPanel zoomButtons = new JPanel();
+
+    JFormattedTextField zoomLevel;
+    zoomLevel = new JFormattedTextField(new DecimalFormat("#.##############"));
+    zoomLevel.setValue(1.0);
+    zoomLevel.setColumns(10);
+
+    zoomLevel.addActionListener(
+        action -> {
+          double f = Double.parseDouble(zoomLevel.getText());
+          ig.setZoom(f);
+          fractal.recalculate();
+        });
+
+    JButton zoomMin = new JButton("-");
+    zoomMin.addActionListener(
+        action -> {
+          double f = ig.getZoom() * 0.8;
+          zoomLevel.setValue(f);
+          ig.setZoom(f);
+          fractal.recalculate();
+        });
+
+    JButton zoomPlus = new JButton("+");
+    zoomPlus.addActionListener(
+        action -> {
+          double f = ig.getZoom() * 1.25;
+          zoomLevel.setValue(f);
+          ig.setZoom(f);
+          fractal.recalculate();
+        });
+
+    zoomButtons.add(zoomLevel);
+    zoomButtons.add(zoomPlus);
+    zoomButtons.add(zoomMin);
+
+    // bouton anti-aliasing
     String[] aaOptions = {"aucun", "x2", "x3", "x4", "x5", "x6", "x7", "x8"};
     JComboBox<String> antiAliBox = new JComboBox<>(aaOptions);
 
@@ -126,11 +168,14 @@ public class Gui extends JFrame {
           fractal.recalculate();
         });
 
-    buttonPanel.add(new JButton("test"));
+    buttonPanel.add(new JLabel("zoom:"));
+    buttonPanel.add(zoomButtons);
+    buttonPanel.add(new JLabel("anti-crénelage:"));
     buttonPanel.add(antiAliBox);
     getContentPane().add(buttonPanel);
     getContentPane().add(fractal);
 
+    setLocationRelativeTo(null); // centre la fenêtre
     EventQueue.invokeLater(() -> setVisible(true));
   }
 }
