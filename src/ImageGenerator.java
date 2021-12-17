@@ -292,32 +292,6 @@ public class ImageGenerator {
     return (color & 0x0000FF);
   }
 
-  // somme les valeurs R, G ou B de plusieurs couleurs, puis renvoie leur moyenne
-
-  private int averageRed(int... colors) {
-    int sum = 0;
-    for (int c : colors) {
-      sum += extractRed(c);
-    }
-    return sum / colors.length;
-  }
-
-  private int averageGreen(int... colors) {
-    int sum = 0;
-    for (int c : colors) {
-      sum += extractGreen(c);
-    }
-    return sum / colors.length;
-  }
-
-  private int averageBlue(int... colors) {
-    int sum = 0;
-    for (int c : colors) {
-      sum += extractBlue(c);
-    }
-    return sum / colors.length;
-  }
-
   // calculate fractal and put it in buffer
   public void generateBuffer() {
 
@@ -365,4 +339,34 @@ public class ImageGenerator {
       e.printStackTrace();
     }
   }
+
+  // fonctions non utilisés
+
+  // somme les valeurs R, G ou B de plusieurs couleurs, puis renvoie leur moyenne
+  /*
+  private int averageRed(int... colors) {
+    int sum = 0;
+    for (int c : colors) {
+      sum += extractRed(c);
+    }
+    return sum / colors.length;
+  }
+
+  private int averageGreen(int... colors) {
+    int sum = 0;
+    for (int c : colors) {
+      sum += extractGreen(c);
+    }
+    return sum / colors.length;
+  }
+
+  private int averageBlue(int... colors) {
+    int sum = 0;
+    for (int c : colors) {
+      sum += extractBlue(c);
+    }
+    return sum / colors.length;
+  }
+  */
+
 }

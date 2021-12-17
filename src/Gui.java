@@ -13,6 +13,7 @@ public class Gui extends JFrame {
   private class FractalImage extends JLabel implements MouseInputListener {
 
     transient BufferedImage img;
+    boolean calculating;
 
     int anchorX = 0, anchorY = 0;
     int newX = 0, newY = 0;
@@ -22,6 +23,8 @@ public class Gui extends JFrame {
       setIcon(new ImageIcon(img));
       addMouseListener(this);
       addMouseMotionListener(this);
+      setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+      calculating = false;
     }
 
     public void redraw() {
@@ -40,9 +43,13 @@ public class Gui extends JFrame {
     }
 
     public void recalculate() {
+      calculating = true;
+      setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
       ig.generateBuffer();
+      setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
       img = ig.getImage();
       setIcon(new ImageIcon(img));
+      calculating = false;
     }
 
     @Override
@@ -62,17 +69,24 @@ public class Gui extends JFrame {
 
     @Override
     public void mousePressed(MouseEvent e) {
+      if (calculating) return;
+      setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
       anchorX = e.getX();
       anchorY = e.getY();
+      newX = e.getX();
+      newY = e.getY();
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+      if (calculating) return;
       recalculateAfterShift();
+      setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
+      if (calculating) return;
       newX = e.getX();
       newY = e.getY();
       redraw();
@@ -97,9 +111,23 @@ public class Gui extends JFrame {
 
     BoxLayout boxLayout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
     buttonPanel.setLayout(boxLayout);
-    buttonPanel.add(new JButton("test1"));
-    buttonPanel.add(new JButton("test2"));
 
+    String[] aaOptions = {"aucun", "x2", "x3", "x4", "x5", "x6", "x7", "x8"};
+    JComboBox<String> antiAliBox = new JComboBox<>(aaOptions);
+
+    antiAliBox.addActionListener(
+        event -> {
+          int i = antiAliBox.getSelectedIndex();
+          if (i <= 0) ig.setAntiAliasing(false);
+          else {
+            ig.setAntiAliasing(true);
+            ig.setAntiAliasingAmount(i + 1);
+          }
+          fractal.recalculate();
+        });
+
+    buttonPanel.add(new JButton("test"));
+    buttonPanel.add(antiAliBox);
     getContentPane().add(buttonPanel);
     getContentPane().add(fractal);
 
