@@ -126,7 +126,9 @@ public class ImageGenerator {
     y1 = -1;
     x2 = 1;
     y2 = 1;
+
     setstep(0.005); // set height et width automatiquement
+    image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
     setValueToColorDefaultFunction();
   }

@@ -12,13 +12,10 @@ public class Gui extends JFrame {
 
   private class FractalImage extends JLabel implements MouseInputListener {
 
-    BufferedImage img;
+    transient BufferedImage img;
 
-    boolean isGrabbed = false;
-    // int currX=0, currY=0;
     int anchorX = 0, anchorY = 0;
     int newX = 0, newY = 0;
-    // int w, h;
 
     public FractalImage() {
       img = ig.getImage();
@@ -30,13 +27,19 @@ public class Gui extends JFrame {
     public void redraw() {
       img = ig.getImageWithShift(newX - anchorX, newY - anchorY);
       setIcon(new ImageIcon(img));
-      // repaint();
-      // revalidate();
+    }
+
+    public void recalculateAfterShift() {
+      ig.setShiftX(ig.getShiftX() - (newX - anchorX) * ig.getZoom() * ig.getStep());
+      ig.setShiftY(ig.getShiftY() - (newY - anchorY) * ig.getZoom() * ig.getStep());
+      recalculate();
+      anchorX = 0;
+      anchorY = 0;
+      newX = 0;
+      newY = 0;
     }
 
     public void recalculate() {
-      ig.setShiftX(ig.getShiftX() - ((double) (newX - anchorX)) * ig.getZoom() * ig.getStep());
-      ig.setShiftY(ig.getShiftY() - ((double) (newY - anchorY)) * ig.getZoom() * ig.getStep());
       ig.generateBuffer();
       img = ig.getImage();
       setIcon(new ImageIcon(img));
@@ -59,15 +62,13 @@ public class Gui extends JFrame {
 
     @Override
     public void mousePressed(MouseEvent e) {
-      isGrabbed = true;
       anchorX = e.getX();
       anchorY = e.getY();
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-      isGrabbed = false;
-      recalculate();
+      recalculateAfterShift();
     }
 
     @Override
@@ -86,7 +87,6 @@ public class Gui extends JFrame {
   public Gui(ImageGenerator ig) {
 
     this.ig = ig;
-    // current = new JPanel();
 
     setFont(new Font("SansSerif", Font.PLAIN, 30));
     setMinimumSize(new Dimension(700, 600));
