@@ -1,3 +1,4 @@
+import java.util.Stack;
 import java.util.function.Function;
 
 // A main to test this class
@@ -25,18 +26,41 @@ public class Julia implements TwoDoublesToInt {
 
   /**
    * Fonction utilisee pour parser la fonction f(x) d'un ensemble de julia. Operations supportees: +
-   * - / * et parentheses
+   * * c et z
    */
   public static Function<Complex, Complex> parseFxFromString(String fx) {
     // On parse en notation polonaise
     String[] f = fx.split(" ");
+    Stack top = new Stack();
 
     for (String a : f) {
-      System.out.println(a);
+      top.push(a);
     }
 
-    Function<Complex, Complex> func = z -> z.multiply(z).add(new Complex(-0.729, 0.1889));
-    return func;
+    return recursiveParse(top);
+  }
+
+  private static Function<Complex, Complex> recursiveParse(Stack<String> formula) {
+    String op = formula.pop();
+
+    Function<Complex, Complex> f = z -> z;
+
+    switch (op) {
+      case "+":
+        f = z -> (recursiveParse(formula).apply(z)).add(recursiveParse(formula).apply(z));
+        break;
+      case "*":
+        f = z -> (recursiveParse(formula).apply(z)).multiply(recursiveParse(formula).apply(z));
+        break;
+      case "c":
+        f = z -> new Complex(Double.parseDouble(formula.pop()), Double.parseDouble(formula.pop()));
+        break;
+      case "z":
+        f = z -> z;
+        break;
+    }
+
+    return f;
   }
 
   @Override
