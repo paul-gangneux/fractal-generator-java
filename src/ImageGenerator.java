@@ -127,7 +127,7 @@ public class ImageGenerator {
     x2 = 1;
     y2 = 1;
 
-    setstep(0.005); // set height et width automatiquement
+    setStep(0.005); // set height et width automatiquement
     image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
     setValueToColorDefaultFunction();
@@ -184,7 +184,7 @@ public class ImageGenerator {
     height = (int) ((y2 - y1) / step);
   }
 
-  public void setstep(double d) {
+  public void setStep(double d) {
     if (d <= 0) return;
     step = d;
     width = (int) ((x2 - x1) / d);
@@ -260,6 +260,22 @@ public class ImageGenerator {
     return image;
   }
 
+  public double getX1() {
+    return x1;
+  }
+
+  public double getY1() {
+    return y1;
+  }
+
+  public double getX2() {
+    return x2;
+  }
+
+  public double getY2() {
+    return y2;
+  }
+
   public BufferedImage getImageWithShift(int x, int y) {
     BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     int xstart = (x > 0) ? x : 0;
@@ -313,6 +329,7 @@ public class ImageGenerator {
     double oy = y1 + (1 - zoom) * (y2 - y1) / 2 + shiftY;
 
     threshold = height / threadsNb;
+    if (threshold < 10) threshold = 10;
     RecursiveAction work = new MainWork(0, height, ox, oy);
     ForkJoinPool pool = new ForkJoinPool();
 
