@@ -239,35 +239,23 @@ public class Gui extends JFrame {
           step.setEnabled(true);
         });
 
-    String[] drawOptions = {"Teinte", "Luminosité"};
-    JComboBox<String> drawOptionBox = new JComboBox<>(drawOptions);
+    JComboBox<String> drawOptionBox = new JComboBox<>(ig.getDrawFunctionStrings());
 
     drawOptionBox.addActionListener(
         event -> {
-          int i = drawOptionBox.getSelectedIndex();
-          if (i <= 0) ig.setValueToColorDefaultFunction();
-          else ig.setValueToColorDefaultFunction2();
+          String s = (String) drawOptionBox.getSelectedItem();
+          ig.setDrawFunction(s);
           // permet les inputs utilisateurs pendant le chargement
           drawOptionBox.getUI().setPopupVisible(drawOptionBox, false);
           fractal.recalculate();
         });
 
-    // TODO : refactor
     JPanel coordButtons1 = new JPanel();
     JPanel coordButtons2 = new JPanel();
-    JFormattedTextField point1r = new JFormattedTextField(new DecimalFormat("#.##############"));
-    JFormattedTextField point1i = new JFormattedTextField(new DecimalFormat("#.##############"));
-    JFormattedTextField point2r = new JFormattedTextField(new DecimalFormat("#.##############"));
-    JFormattedTextField point2i = new JFormattedTextField(new DecimalFormat("#.##############"));
-    point1r.setColumns(8);
-    point1i.setColumns(8);
-    point2r.setColumns(8);
-    point2i.setColumns(8);
-
-    point1r.setValue(ig.getX1());
-    point1i.setValue(ig.getY1());
-    point2r.setValue(ig.getX2());
-    point2i.setValue(ig.getY2());
+    JFormattedTextField point1r = makeTextFieldForFloat(8, ig.getX1());
+    JFormattedTextField point1i = makeTextFieldForFloat(8, ig.getY1());
+    JFormattedTextField point2r = makeTextFieldForFloat(8, ig.getX2());
+    JFormattedTextField point2i = makeTextFieldForFloat(8, ig.getY2());
 
     point1r.addActionListener(
         action -> {
@@ -344,5 +332,12 @@ public class Gui extends JFrame {
     for (JComponent c : components) {
       c.setEnabled(false);
     }
+  }
+
+  private JFormattedTextField makeTextFieldForFloat(int columns, double value) {
+    JFormattedTextField field = new JFormattedTextField(new DecimalFormat("#.##############"));
+    field.setColumns(columns);
+    field.setValue(value);
+    return field;
   }
 }

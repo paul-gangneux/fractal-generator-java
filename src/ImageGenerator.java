@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 import javax.imageio.ImageIO;
@@ -13,7 +14,7 @@ public class ImageGenerator {
   private double shiftX, shiftY;
   private TwoDoublesToInt function;
   private BufferedImage image;
-  private int aa_amount; // taux d'anti-crénelage
+  private int antiAliasAmount; // taux d'anti-crénelage
 
   private double x1, y1;
   private double x2, y2;
@@ -24,7 +25,8 @@ public class ImageGenerator {
 
   private boolean antiAliasing; // vrai si l'anti-crénelage est actif
 
-  private ThreeIntToInt valueToColor;
+  private HashMap<String, ThreeIntToInt> drawFunctionMap = new HashMap<>();
+  private ThreeIntToInt currentDrawFunction;
 
   private class MainWork extends RecursiveAction {
 
@@ -56,7 +58,7 @@ public class ImageGenerator {
         for (int i = 0; i < width; i++) {
           for (int j = hmin; j < hmax; j++) {
             int val = function.doublesToInt(x, y);
-            int col = valueToColor.apply(val, min, max);
+            int col = currentDrawFunction.apply(val, min, max);
             image.setRGB(i, j, col);
             y += step * zoom;
           }
@@ -78,6 +80,20 @@ public class ImageGenerator {
       this.buffer = buffer;
     }
 
+    // ces fonction extraient les composantes R, G et B depuis la valeur d'un pixel
+
+    private int extractRed(int color) {
+      return (color & 0xFF0000) >> 16;
+    }
+
+    private int extractGreen(int color) {
+      return (color & 0x00FF00) >> 8;
+    }
+
+    private int extractBlue(int color) {
+      return (color & 0x0000FF);
+    }
+
     @Override
     protected void compute() {
       if (hmax - hmin > threshold) {
@@ -92,18 +108,18 @@ public class ImageGenerator {
             int pG = 0;
             int pB = 0;
 
-            for (int a = 0; a < aa_amount; a++) {
-              for (int b = 0; b < aa_amount; b++) {
-                int rgb = image.getRGB(i * aa_amount + a, j * aa_amount + b);
+            for (int a = 0; a < antiAliasAmount; a++) {
+              for (int b = 0; b < antiAliasAmount; b++) {
+                int rgb = image.getRGB(i * antiAliasAmount + a, j * antiAliasAmount + b);
                 pR += extractRed(rgb);
                 pG += extractGreen(rgb);
                 pB += extractBlue(rgb);
               }
             }
 
-            pR /= aa_amount * aa_amount;
-            pG /= aa_amount * aa_amount;
-            pB /= aa_amount * aa_amount;
+            pR /= antiAliasAmount * antiAliasAmount;
+            pG /= antiAliasAmount * antiAliasAmount;
+            pB /= antiAliasAmount * antiAliasAmount;
 
             int pixel = rgbToInt(pR, pG, pB);
             buffer.setRGB(i, j, pixel);
@@ -120,7 +136,7 @@ public class ImageGenerator {
     shiftY = 0;
     antiAliasing = false;
     threshold = 64;
-    aa_amount = 2;
+    antiAliasAmount = 2;
 
     x1 = -1;
     y1 = -1;
@@ -130,7 +146,32 @@ public class ImageGenerator {
     setStep(0.005); // set height et width automatiquement
     image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-    setValueToColorDefaultFunction();
+    // fonctions d'affichage par défaut :
+
+    drawFunctionMap.put(
+        "Teinte",
+        (int val, int min, int max) -> {
+          if (val < min || val > max) return 0x000000; // cas erreur
+          if (val == max) return 0;
+          return Color.HSBtoRGB((float) (val + min) / max, 0.8f, 0.7f);
+        });
+
+    drawFunctionMap.put(
+        "Luminosité",
+        (int val, int min, int max) -> {
+          if (val > max || val < min) return 0xff0000; // cas erreur
+          if (val == max) return 0xaaccff;
+          val = 255 * (val + min) / max;
+          return rgbToInt(val, val, val);
+        });
+
+    drawFunctionMap.put(
+        null,
+        (int a, int b, int c) -> {
+          return 0;
+        });
+
+    setDrawFunction("Teinte");
   }
 
   // setters
@@ -193,30 +234,11 @@ public class ImageGenerator {
 
   public void setAntiAliasingAmount(int amount) {
     if (amount < 2) return;
-    this.aa_amount = amount;
+    this.antiAliasAmount = amount;
   }
 
-  public void setValueToColorFunction(ThreeIntToInt function) {
-    valueToColor = function;
-  }
-
-  public void setValueToColorDefaultFunction() {
-    valueToColor =
-        (int val, int min, int max) -> {
-          if (val < min || val > max) return 0x000000; // cas erreur
-          if (val == max) return 0;
-          return Color.HSBtoRGB((float) (val + min) / max, 0.8f, 0.7f);
-        };
-  }
-
-  public void setValueToColorDefaultFunction2() {
-    valueToColor =
-        (int val, int min, int max) -> {
-          if (val > max || val < min) return 0xff0000; // cas erreur
-          if (val == max) return 0xaaccff;
-          val = 255 * (val + min) / max;
-          return rgbToInt(val, val, val);
-        };
+  public void setDrawFunction(String functionDesc) {
+    currentDrawFunction = drawFunctionMap.get(functionDesc);
   }
 
   public void setFractalGenerationFunction(TwoDoublesToInt f) {
@@ -249,7 +271,7 @@ public class ImageGenerator {
   }
 
   public int getAntiAliasingAmount() {
-    return aa_amount;
+    return antiAliasAmount;
   }
 
   public double getStep() {
@@ -276,6 +298,17 @@ public class ImageGenerator {
     return y2;
   }
 
+  public String[] getDrawFunctionStrings() {
+    String[] a = new String[drawFunctionMap.size() - 1];
+    int i = 0;
+    for (String key : drawFunctionMap.keySet()) {
+      if (key != null) {
+        a[i++] = key;
+      }
+    }
+    return a;
+  }
+
   public BufferedImage getImageWithShift(int x, int y) {
     BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     int xstart = (x > 0) ? x : 0;
@@ -294,20 +327,6 @@ public class ImageGenerator {
     return (r << 16) | (g << 8) | b;
   }
 
-  // ces fonction extraient les composantes R, G et B depuis la valeur d'un pixel
-
-  private int extractRed(int color) {
-    return (color & 0xFF0000) >> 16;
-  }
-
-  private int extractGreen(int color) {
-    return (color & 0x00FF00) >> 8;
-  }
-
-  private int extractBlue(int color) {
-    return (color & 0x0000FF);
-  }
-
   // calculate fractal and put it in buffer
   public void generateBuffer() {
 
@@ -318,9 +337,9 @@ public class ImageGenerator {
 
     if (antiAliasing) {
       smol = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-      height *= aa_amount;
-      width *= aa_amount;
-      step /= aa_amount;
+      height *= antiAliasAmount;
+      width *= antiAliasAmount;
+      step /= antiAliasAmount;
     }
 
     image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -336,9 +355,9 @@ public class ImageGenerator {
     pool.invoke(work);
 
     if (antiAliasing) {
-      height /= aa_amount;
-      width /= aa_amount;
-      step *= aa_amount;
+      height /= antiAliasAmount;
+      width /= antiAliasAmount;
+      step *= antiAliasAmount;
       threshold = height / threadsNb;
       RecursiveAction aawork = new AntiAliasingWork(0, height, smol);
       ForkJoinPool pool2 = new ForkJoinPool();
