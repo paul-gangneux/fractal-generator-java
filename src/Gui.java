@@ -11,6 +11,38 @@ public class Gui extends JFrame {
   private FractalImage fractal;
   private JFrame thisJframe = this;
 
+  // tous les boutons / champs / autre :
+
+  // largeur et hauteur
+  JSpinner hspin = new JSpinner();
+  JSpinner wspin = new JSpinner();
+
+  // zoom
+  JFormattedTextField zoomLevel = makeTextFieldForFloat(10);
+  JButton zoomMin = new JButton("-");
+  JButton zoomPlus = new JButton("+");
+
+  // anti-aliasing
+  JComboBox<String> antiAliBox;
+  // fonction d'affichage
+  JComboBox<String> drawOptionBox;
+
+  // pas de discrétisation
+  JFormattedTextField step = makeTextFieldForFloat(10);
+
+  // points de début et de fin du rectangle
+  JFormattedTextField point1r = makeTextFieldForFloat(8);
+  JFormattedTextField point1i = makeTextFieldForFloat(8);
+  JFormattedTextField point2r = makeTextFieldForFloat(8);
+  JFormattedTextField point2i = makeTextFieldForFloat(8);
+
+  /* les spinners effectuent leurs actions même quand ils sont
+  modifiés par le programme et non pas l'utilisateur,
+  ce booléen permet de désactiver leurs actions pour
+  éviter les comportements indésirables
+  */
+  boolean spinnersAllowed = true;
+
   private class FractalImage extends JLabel implements MouseInputListener {
 
     private transient BufferedImage img;
@@ -107,7 +139,6 @@ public class Gui extends JFrame {
 
     this.ig = ig;
 
-    // TODO : prendre en compte tous les changements avant de recalculer la fractale
     setFont(new Font("SansSerif", Font.PLAIN, 30));
     setMinimumSize(new Dimension(700, 600));
     setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -120,37 +151,12 @@ public class Gui extends JFrame {
     BoxLayout boxLayout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
     buttonPanel.setLayout(boxLayout);
 
-    // largeur et hauteurs
+    // panel pour largeur et hauteurs
     JPanel sizeButtons = new JPanel();
-    JSpinner hspin = new JSpinner();
-    JSpinner wspin = new JSpinner();
 
     // change la taille par défaut de l'entrée texte
     ((JSpinner.DefaultEditor) (hspin.getEditor())).getTextField().setColumns(4);
     ((JSpinner.DefaultEditor) (wspin.getEditor())).getTextField().setColumns(4);
-
-    hspin.setValue(ig.getHeight());
-    wspin.setValue(ig.getWidth());
-
-    hspin.addChangeListener(
-        event -> {
-          hspin.setEnabled(false);
-          int i = (Integer) hspin.getValue();
-          ig.setHeight(i);
-          hspin.setValue(ig.getHeight()); // au cas où l'utilisateur entre une donnée non conforme
-          fractal.recalculate();
-          hspin.setEnabled(true);
-        });
-
-    wspin.addChangeListener(
-        event -> {
-          wspin.setEnabled(false);
-          int i = (Integer) wspin.getValue();
-          ig.setWidth(i);
-          wspin.setValue(ig.getWidth()); // au cas où l'utilisateur entre une donnée non conforme
-          fractal.recalculate();
-          wspin.setEnabled(true);
-        });
 
     sizeButtons.add(new JLabel("H"));
     sizeButtons.add(hspin);
@@ -159,134 +165,50 @@ public class Gui extends JFrame {
 
     // bouttons zoom
     JPanel zoomButtons = new JPanel();
-    JFormattedTextField zoomLevel = new JFormattedTextField(new DecimalFormat("#.##############"));
-    JButton zoomMin = new JButton("-");
-    JButton zoomPlus = new JButton("+");
-
-    zoomLevel.setValue(ig.getZoom());
-    zoomLevel.setColumns(10);
-
-    zoomLevel.addActionListener(
-        action -> {
-          disableAll(zoomLevel, zoomMin, zoomPlus);
-          double f = Double.parseDouble(zoomLevel.getText());
-          ig.setZoom(f);
-          zoomLevel.setValue(ig.getZoom());
-          fractal.recalculate();
-          enableAll(zoomLevel, zoomMin, zoomPlus);
-        });
-
-    zoomMin.addActionListener(
-        action -> {
-          disableAll(zoomLevel, zoomMin, zoomPlus);
-          double f = ig.getZoom() * 0.8;
-          ig.setZoom(f);
-          zoomLevel.setValue(ig.getZoom());
-          fractal.recalculate();
-          enableAll(zoomLevel, zoomMin, zoomPlus);
-        });
-
-    zoomPlus.addActionListener(
-        action -> {
-          disableAll(zoomLevel, zoomMin, zoomPlus);
-          double f = ig.getZoom() * 1.25;
-          ig.setZoom(f);
-          zoomLevel.setValue(ig.getZoom());
-          fractal.recalculate();
-          enableAll(zoomLevel, zoomMin, zoomPlus);
-        });
-
     zoomButtons.add(zoomLevel);
     zoomButtons.add(zoomPlus);
     zoomButtons.add(zoomMin);
 
     // bouton anti-aliasing
     String[] aaOptions = {"aucun", "x2", "x3", "x4", "x5", "x6", "x7", "x8"};
-    JComboBox<String> antiAliBox = new JComboBox<>(aaOptions);
+    antiAliBox = new JComboBox<>(aaOptions);
 
     int ind;
     if (!ig.getAntiAliasing()) ind = 0;
     else ind = ig.getAntiAliasingAmount() - 1;
     antiAliBox.setSelectedIndex(ind);
 
-    antiAliBox.addActionListener(
-        event -> {
-          int i = antiAliBox.getSelectedIndex();
-          if (i <= 0) ig.setAntiAliasing(false);
-          else {
-            ig.setAntiAliasing(true);
-            ig.setAntiAliasingAmount(i + 1);
-          }
-          // permet les inputs utilisateurs pendant le chargement
-          antiAliBox.getUI().setPopupVisible(antiAliBox, false);
-          fractal.recalculate();
-        });
-
-    // pas de disctétisation
-    JFormattedTextField step = new JFormattedTextField(new DecimalFormat("#.##############"));
-    step.setValue(ig.getStep());
-    step.setColumns(10);
-
-    step.addActionListener(
-        action -> {
-          step.setEnabled(false);
-          double f = Double.parseDouble(step.getText());
-          ig.setStep(f);
-          step.setValue(ig.getStep());
-          hspin.setValue(ig.getHeight());
-          wspin.setValue(ig.getWidth());
-          fractal.recalculate();
-          step.setEnabled(true);
-        });
-
-    JComboBox<String> drawOptionBox = new JComboBox<>(ig.getDrawFunctionStrings());
-
-    drawOptionBox.addActionListener(
-        event -> {
-          String s = (String) drawOptionBox.getSelectedItem();
-          ig.setDrawFunction(s);
-          // permet les inputs utilisateurs pendant le chargement
-          drawOptionBox.getUI().setPopupVisible(drawOptionBox, false);
-          fractal.recalculate();
-        });
+    drawOptionBox = new JComboBox<>(ig.getDrawFunctionStrings());
+    drawOptionBox.setSelectedItem(ig.getCurrentDrawFunctionString());
 
     JPanel coordButtons1 = new JPanel();
     JPanel coordButtons2 = new JPanel();
-    JFormattedTextField point1r = makeTextFieldForFloat(8, ig.getX1());
-    JFormattedTextField point1i = makeTextFieldForFloat(8, ig.getY1());
-    JFormattedTextField point2r = makeTextFieldForFloat(8, ig.getX2());
-    JFormattedTextField point2i = makeTextFieldForFloat(8, ig.getY2());
 
-    point1r.addActionListener(
-        action -> {
-          double f = Double.parseDouble(point1r.getText());
-          ig.setPoint1(f, ig.getY1());
-          point1r.setValue(ig.getX1());
-          fractal.recalculate();
+    updateAllValuesOnGUI();
+
+    zoomMin.addActionListener(
+        event -> {
+          zoomLevel.setValue(Double.parseDouble(zoomLevel.getText()) * 0.8);
+          onAction();
         });
-
-    point1i.addActionListener(
-        action -> {
-          double f = Double.parseDouble(point1i.getText());
-          ig.setPoint1(ig.getX1(), f);
-          point1i.setValue(ig.getY1());
-          fractal.recalculate();
+    zoomPlus.addActionListener(
+        event -> {
+          zoomLevel.setValue(Double.parseDouble(zoomLevel.getText()) * 1.25);
+          onAction();
         });
+    addActionListenerToTextFields(zoomLevel, step, point1r, point2r, point1i, point2i);
+    addActionListenerToSpinners(hspin, wspin);
 
-    point2r.addActionListener(
-        action -> {
-          double f = Double.parseDouble(point2r.getText());
-          ig.setPoint2(f, ig.getY2());
-          point2r.setValue(ig.getX2());
-          fractal.recalculate();
+    antiAliBox.addActionListener(
+        event -> {
+          // permet les inputs utilisateurs pendant le chargement
+          antiAliBox.getUI().setPopupVisible(antiAliBox, false);
+          onAction();
         });
-
-    point2i.addActionListener(
-        action -> {
-          double f = Double.parseDouble(point2i.getText());
-          ig.setPoint2(ig.getX2(), f);
-          point2i.setValue(ig.getY2());
-          fractal.recalculate();
+    drawOptionBox.addActionListener(
+        event -> {
+          drawOptionBox.getUI().setPopupVisible(antiAliBox, false);
+          onAction();
         });
 
     coordButtons1.add(new JLabel("R"));
@@ -322,22 +244,87 @@ public class Gui extends JFrame {
     EventQueue.invokeLater(() -> setVisible(true));
   }
 
-  private void enableAll(JComponent... components) {
-    for (JComponent c : components) {
-      c.setEnabled(true);
+  private void setEnabledForAll(boolean bool) {
+    hspin.setEnabled(bool);
+    wspin.setEnabled(bool);
+    zoomLevel.setEnabled(bool);
+    step.setEnabled(bool);
+    point1r.setEnabled(bool);
+    point1i.setEnabled(bool);
+    point2r.setEnabled(bool);
+    point2i.setEnabled(bool);
+    // antiAliBox.setEnabled(bool);
+    // drawOptionBox.setEnabled(bool);
+  }
+
+  private void updateAllValuesInIG() {
+    ig.setHeight((Integer) hspin.getValue());
+    ig.setWidth((Integer) wspin.getValue());
+    ig.setZoom(Double.parseDouble(zoomLevel.getText()));
+    ig.setPoint1(Double.parseDouble(point1r.getText()), Double.parseDouble(point1i.getText()));
+    ig.setPoint2(Double.parseDouble(point2r.getText()), Double.parseDouble(point2i.getText()));
+    ig.setStep(Double.parseDouble(step.getText()));
+
+    int aai = antiAliBox.getSelectedIndex();
+    if (aai <= 0) ig.setAntiAliasing(false);
+    else {
+      ig.setAntiAliasing(true);
+      ig.setAntiAliasingAmount(aai + 1);
+    }
+    String s = (String) drawOptionBox.getSelectedItem();
+    ig.setDrawFunction(s);
+  }
+
+  private void updateAllValuesOnGUI() {
+    hspin.setValue(ig.getHeight());
+    wspin.setValue(ig.getWidth());
+    zoomLevel.setValue(ig.getZoom());
+    point1r.setValue(ig.getX1());
+    point1i.setValue(ig.getY1());
+    point2r.setValue(ig.getX2());
+    point2i.setValue(ig.getY2());
+    step.setValue(ig.getStep());
+    antiAliBox.getUI().setPopupVisible(antiAliBox, false);
+    drawOptionBox.getUI().setPopupVisible(antiAliBox, false);
+  }
+
+  private void onAction() {
+    spinnersAllowed = false;
+    setEnabledForAll(false);
+    updateAllValuesInIG();
+    updateAllValuesOnGUI();
+    fractal.recalculate();
+    setEnabledForAll(true);
+    spinnersAllowed = true;
+  }
+
+  // fait pour hspin et wspin. c'est bricolé
+  private void addActionListenerToSpinners(JSpinner... components) {
+    for (JSpinner c : components) {
+      c.addChangeListener(
+          event -> {
+            if (!spinnersAllowed) return;
+            setEnabledForAll(false);
+            updateAllValuesInIG();
+            ig.setHeight((Integer) hspin.getValue());
+            ig.setWidth((Integer) wspin.getValue());
+            updateAllValuesOnGUI();
+            fractal.recalculate();
+            setEnabledForAll(true);
+          });
     }
   }
 
-  private void disableAll(JComponent... components) {
-    for (JComponent c : components) {
-      c.setEnabled(false);
+  private void addActionListenerToTextFields(JFormattedTextField... components) {
+    for (JFormattedTextField c : components) {
+      c.addActionListener(event -> onAction());
     }
   }
 
-  private JFormattedTextField makeTextFieldForFloat(int columns, double value) {
+  private JFormattedTextField makeTextFieldForFloat(int columns) {
     JFormattedTextField field = new JFormattedTextField(new DecimalFormat("#.##############"));
     field.setColumns(columns);
-    field.setValue(value);
+    field.setValue(0.0);
     return field;
   }
 }

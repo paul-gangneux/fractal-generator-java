@@ -3,6 +3,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 import javax.imageio.ImageIO;
@@ -296,6 +297,13 @@ public class ImageGenerator {
 
   public double getY2() {
     return y2;
+  }
+
+  public String getCurrentDrawFunctionString() {
+    for (Map.Entry<String, ThreeIntToInt> entry : drawFunctionMap.entrySet()) {
+      if (currentDrawFunction == entry.getValue()) return entry.getKey();
+    }
+    return null;
   }
 
   public String[] getDrawFunctionStrings() {
