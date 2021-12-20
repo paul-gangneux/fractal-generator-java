@@ -345,7 +345,7 @@ public class Gui extends JFrame {
 
   private JFormattedTextField makeTextFieldForFloat(int columns) {
     JFormattedTextField field =
-    new JFormattedTextField(new DecimalFormat("#.##############################"));
+        new JFormattedTextField(new DecimalFormat("#.##############################"));
     field.setColumns(columns);
     field.setValue(0.0);
     return field;
