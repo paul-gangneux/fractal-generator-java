@@ -1,4 +1,5 @@
 import java.util.function.Function;
+import javax.script.*;
 
 public class Cli {
   public void run(String... args) {
@@ -33,7 +34,19 @@ public class Cli {
           isMandelbrot = true;
           break;
         case "--julia":
-          f = Julia.parseFxFromString(sa[1]);
+          try {
+            ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+            f =
+                (Function<Complex, Complex>)
+                    engine.eval(
+                        String.format(
+                            "var Complex= Java.type(\"Complex\");new"
+                                + " java.util.function.Function(function(z){return %s;})",
+                            sa[1]));
+          } catch (final ScriptException e) {
+            e.printStackTrace();
+          }
+
           break;
         default:
           System.out.println(arg);

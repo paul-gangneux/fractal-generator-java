@@ -1,8 +1,12 @@
 ### Entrer un polynome pour un ensemble de Julia
-On utilise la notation polonaise, avec les operateurs +, -, * et /.
-Un nombre complexe est represente comme ceci: (c [partie reelle] [partie imaginaire])
-On a egalement l'entree de la fonction z.
-On represente donc f(z) = z\*z+(-0.729 + 0.1889i) comme ceci:
-	`+ * z z c -0.729 0.1889`
+Nous utilisons le moteur de script Nashorn pour interpreter les fonctions fournies,
+et exposons une classe Complex avec les methodes suivantes;
+ - `Complex(double valeur_reelle, double valeur_imaginaire)`
+ - `add(Complex z)`
+ - `multiply(Complex z)`
 
-Un appel typique serai donc `java -classpath bld Main --julia="+ * z z c -0.729 0.1889"`
+Voici un exemple d'utilisation de cette classe pour calculer un ensemble de julia utilisant
+la valeur `0 + 0.8i` : `java -classpath bld Main --julia="z.multiply(z).add(new Complex(0, 0.8))"`
+
+Il est a noter que cette fonctionnalite rends le programme extremement peu securise, et ne doit pas etre exposee a un utilisateur potentiellement malveillant.
+
