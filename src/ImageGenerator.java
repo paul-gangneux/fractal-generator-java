@@ -301,6 +301,10 @@ public class ImageGenerator {
     return y2;
   }
 
+  public TwoDoublesToInt getFunction() {
+    return function;
+  }
+
   public String getCurrentDrawFunctionString() {
     for (Map.Entry<String, ThreeIntToInt> entry : drawFunctionMap.entrySet()) {
       if (currentDrawFunction == entry.getValue()) return entry.getKey();

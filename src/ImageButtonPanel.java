@@ -1,13 +1,6 @@
 import java.awt.Color;
 import java.text.DecimalFormat;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
+import javax.swing.*;
 import javax.swing.border.Border;
 
 public class ImageButtonPanel extends JPanel {
@@ -134,7 +127,7 @@ public class ImageButtonPanel extends JPanel {
         });
     drawOptionBox.addActionListener(
         event -> {
-          drawOptionBox.getUI().setPopupVisible(antiAliBox, false);
+          drawOptionBox.getUI().setPopupVisible(drawOptionBox, false);
           onAction();
         });
 

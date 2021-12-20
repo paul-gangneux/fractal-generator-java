@@ -4,6 +4,8 @@
 public interface TwoDoublesToInt {
   int doublesToInt(double x, double y);
 
+  void setMax(int max);
+
   int maxValue();
 
   int minValue();
