@@ -231,6 +231,8 @@ public class ImageGenerator {
     step = d;
     width = (int) ((x2 - x1) / d);
     height = (int) ((y2 - y1) / d);
+    if (width <= 0) width = 1;
+    if (height <= 0) height = 1;
   }
 
   public void setAntiAliasingAmount(int amount) {
@@ -382,6 +384,24 @@ public class ImageGenerator {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public void applyZoom() {
+    int h = getHeight();
+    int w = getWidth();
+    setStep(step * zoom);
+    setHeight(h);
+    setWidth(w);
+    zoom = 1;
+  }
+
+  public void applyShift() {
+    x1 += shiftX;
+    x2 += shiftX;
+    y1 += shiftY;
+    y2 += shiftY;
+    shiftX = 0;
+    shiftY = 0;
   }
 
   // fonctions non utilisés

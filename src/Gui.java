@@ -36,7 +36,8 @@ public class Gui extends JFrame {
   JFormattedTextField point2r = makeTextFieldForFloat(8);
   JFormattedTextField point2i = makeTextFieldForFloat(8);
 
-  /* les spinners effectuent leurs actions même quand ils sont
+  /*
+  les spinners effectuent leurs actions même quand ils sont
   modifiés par le programme et non pas l'utilisateur,
   ce booléen permet de désactiver leurs actions pour
   éviter les comportements indésirables
@@ -78,6 +79,9 @@ public class Gui extends JFrame {
     public void recalculate() {
       if (calculating) return;
       calculating = true;
+      ig.applyShift();
+      ig.applyZoom();
+      updateAllValuesOnGUI();
       thisJframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
       setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
       ig.generateBuffer();
@@ -87,6 +91,7 @@ public class Gui extends JFrame {
       setIcon(new ImageIcon(img));
       calculating = false;
       thisJframe.pack();
+      // thisJframe.setLocationRelativeTo(null);
     }
 
     @Override
@@ -184,18 +189,41 @@ public class Gui extends JFrame {
     JPanel coordButtons1 = new JPanel();
     JPanel coordButtons2 = new JPanel();
 
+    zoomLevel.setValue(2);
+
     updateAllValuesOnGUI();
+
+    zoomLevel.addActionListener(
+        event -> {
+          double d = Double.parseDouble(zoomLevel.getText());
+          if (d < 1) {
+            d = 1;
+            zoomLevel.setValue(1);
+          }
+        });
 
     zoomMin.addActionListener(
         event -> {
-          zoomLevel.setValue(Double.parseDouble(zoomLevel.getText()) * 0.8);
+          double d = Double.parseDouble(zoomLevel.getText());
+          if (d < 1) {
+            d = 1;
+            zoomLevel.setValue(1);
+          }
+          ig.setZoom(d);
           onAction();
         });
+
     zoomPlus.addActionListener(
         event -> {
-          zoomLevel.setValue(Double.parseDouble(zoomLevel.getText()) * 1.25);
+          double d = Double.parseDouble(zoomLevel.getText());
+          if (d < 1) {
+            d = 1;
+            zoomLevel.setValue(1);
+          }
+          ig.setZoom(1 / d);
           onAction();
         });
+
     addActionListenerToTextFields(zoomLevel, step, point1r, point2r, point1i, point2i);
     addActionListenerToSpinners(hspin, wspin);
 
@@ -253,14 +281,11 @@ public class Gui extends JFrame {
     point1i.setEnabled(bool);
     point2r.setEnabled(bool);
     point2i.setEnabled(bool);
-    // antiAliBox.setEnabled(bool);
-    // drawOptionBox.setEnabled(bool);
   }
 
   private void updateAllValuesInIG() {
     ig.setHeight((Integer) hspin.getValue());
     ig.setWidth((Integer) wspin.getValue());
-    ig.setZoom(Double.parseDouble(zoomLevel.getText()));
     ig.setPoint1(Double.parseDouble(point1r.getText()), Double.parseDouble(point1i.getText()));
     ig.setPoint2(Double.parseDouble(point2r.getText()), Double.parseDouble(point2i.getText()));
     ig.setStep(Double.parseDouble(step.getText()));
@@ -278,7 +303,6 @@ public class Gui extends JFrame {
   private void updateAllValuesOnGUI() {
     hspin.setValue(ig.getHeight());
     wspin.setValue(ig.getWidth());
-    zoomLevel.setValue(ig.getZoom());
     point1r.setValue(ig.getX1());
     point1i.setValue(ig.getY1());
     point2r.setValue(ig.getX2());
@@ -292,7 +316,6 @@ public class Gui extends JFrame {
     spinnersAllowed = false;
     setEnabledForAll(false);
     updateAllValuesInIG();
-    updateAllValuesOnGUI();
     fractal.recalculate();
     setEnabledForAll(true);
     spinnersAllowed = true;
@@ -308,7 +331,6 @@ public class Gui extends JFrame {
             updateAllValuesInIG();
             ig.setHeight((Integer) hspin.getValue());
             ig.setWidth((Integer) wspin.getValue());
-            updateAllValuesOnGUI();
             fractal.recalculate();
             setEnabledForAll(true);
           });
@@ -322,7 +344,8 @@ public class Gui extends JFrame {
   }
 
   private JFormattedTextField makeTextFieldForFloat(int columns) {
-    JFormattedTextField field = new JFormattedTextField(new DecimalFormat("#.##############"));
+    JFormattedTextField field =
+    new JFormattedTextField(new DecimalFormat("#.##############################"));
     field.setColumns(columns);
     field.setValue(0.0);
     return field;
