@@ -37,7 +37,7 @@ public class Julia implements TwoDoublesToInt {
   public int doublesToInt(double x, double y) {
     int res = 0;
     Complex z = new Complex(x, y);
-    while (res < max - 1 && z.abs() <= radius) {
+    while (res < max && z.abs() <= radius) {
       z = func.apply(z);
       res++;
     }
