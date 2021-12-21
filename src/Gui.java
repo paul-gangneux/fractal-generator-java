@@ -1,5 +1,6 @@
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.border.Border;
 
 public class Gui extends JFrame {
 
@@ -20,12 +21,39 @@ public class Gui extends JFrame {
     BoxLayout b = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
     buttonPanel.setLayout(b);
 
+    // le panel pour enregistrer les images. comme il est simple je le fais ici :
+    JPanel saveImagePanel = new JPanel();
+    BoxLayout b2 = new BoxLayout(saveImagePanel, BoxLayout.Y_AXIS);
+    saveImagePanel.setLayout(b2);
+    Border bo = BorderFactory.createLineBorder(new Color(0.4f, 0.4f, 0.4f));
+    Border bo2 = BorderFactory.createTitledBorder(bo, "sauvegarde");
+    saveImagePanel.setBorder(bo2);
+
+    JTextField nameField = new JTextField();
+    nameField.setText("image.png");
+    nameField.setColumns(8);
+
+    JButton saveButton = new JButton("sauvegarder");
+
+    saveButton.addActionListener(e -> {
+      ig.createImage("images/"+nameField.getText());
+    });
+
+    saveImagePanel.add(new JLabel("nom:"));
+    saveImagePanel.add(nameField);
+    saveImagePanel.add(saveButton);
+
     buttonPanel.add(imageButtonPanel);
     buttonPanel.add(new JLabel(" "));
     buttonPanel.add(fractalButtonPannel);
+    buttonPanel.add(new JLabel(" "));
+    buttonPanel.add(saveImagePanel);
+
+  
 
     getContentPane().add(buttonPanel);
     getContentPane().add(fractal);
+    
 
     setLocationRelativeTo(null); // centre la fenêtre
     pack();

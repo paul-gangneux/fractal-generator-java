@@ -383,6 +383,7 @@ public class ImageGenerator {
   // creates image from buffer
   public void createImage(String pathname) {
     File file = new File(pathname);
+    //TODO : s'assurer que le nom finisse en .png
     try {
       ImageIO.write(image, "PNG", file);
     } catch (IOException e) {
