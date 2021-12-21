@@ -30,14 +30,15 @@ public class Gui extends JFrame {
     saveImagePanel.setBorder(bo2);
 
     JTextField nameField = new JTextField();
-    nameField.setText("image.png");
+    nameField.setText("image");
     nameField.setColumns(8);
 
     JButton saveButton = new JButton("sauvegarder");
 
-    saveButton.addActionListener(e -> {
-      ig.createImage("images/"+nameField.getText());
-    });
+    saveButton.addActionListener(
+        e -> {
+          ig.createImage("images/" + nameField.getText());
+        });
 
     saveImagePanel.add(new JLabel("nom:"));
     saveImagePanel.add(nameField);
@@ -49,11 +50,8 @@ public class Gui extends JFrame {
     buttonPanel.add(new JLabel(" "));
     buttonPanel.add(saveImagePanel);
 
-  
-
     getContentPane().add(buttonPanel);
     getContentPane().add(fractal);
-    
 
     setLocationRelativeTo(null); // centre la fenêtre
     pack();
