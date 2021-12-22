@@ -30,6 +30,9 @@ public class ImageGenerator {
   private HashMap<String, ThreeIntToInt> drawFunctionMap = new HashMap<>();
   private ThreeIntToInt currentDrawFunction;
 
+  // pour arrêter les calculs
+  private boolean interrupted = false;
+
   private class MainWork extends RecursiveAction {
 
     private int hmin;
@@ -59,6 +62,7 @@ public class ImageGenerator {
 
         for (int i = 0; i < width; i++) {
           for (int j = hmin; j < hmax; j++) {
+            if (interrupted) return;
             int val = function.doublesToInt(x, y);
             int col = currentDrawFunction.apply(val, min, max);
             image.setRGB(i, j, col);
@@ -105,6 +109,7 @@ public class ImageGenerator {
       } else {
         for (int i = 0; i < width; i++) {
           for (int j = hmin; j < hmax; j++) {
+            if (interrupted) return;
 
             int pR = 0;
             int pG = 0;
@@ -346,6 +351,7 @@ public class ImageGenerator {
   public void generateBuffer() {
 
     if (function == null) return;
+    interrupted = false;
     BufferedImage smol = null;
 
     int threadsNb = Runtime.getRuntime().availableProcessors();
@@ -467,6 +473,10 @@ public class ImageGenerator {
     y2 += shiftY;
     shiftX = 0;
     shiftY = 0;
+  }
+
+  public void interrupt() {
+    interrupted = true;
   }
 
   // fonctions non utilisés

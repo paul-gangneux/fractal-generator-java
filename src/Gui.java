@@ -48,6 +48,13 @@ public class Gui extends JFrame {
           ig.createTextFile("images/" + nameField.getText());
         });
 
+    JButton interruptButton = new JButton("annuler");
+
+    interruptButton.addActionListener(
+        e -> {
+          ig.interrupt();
+        });
+
     saveImagePanel.add(new JLabel("nom:"));
     saveImagePanel.add(nameField);
     saveImagePanel.add(saveImageButton);
@@ -58,6 +65,7 @@ public class Gui extends JFrame {
     buttonPanel.add(fractalButtonPannel);
     buttonPanel.add(new JLabel(" "));
     buttonPanel.add(saveImagePanel);
+    buttonPanel.add(interruptButton);
 
     getContentPane().add(buttonPanel);
     getContentPane().add(fractal);

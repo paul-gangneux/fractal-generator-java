@@ -55,13 +55,17 @@ public class FractalImage extends JLabel implements MouseInputListener {
     ipp.updateValues();
     frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-    ig.generateBuffer();
-    frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-    setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-    img = ig.getImage();
-    setIcon(new ImageIcon(img));
-    calculating = false;
-    frame.pack();
+    new Thread(
+            () -> {
+              ig.generateBuffer();
+              frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+              setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+              img = ig.getImage();
+              setIcon(new ImageIcon(img));
+              calculating = false;
+              frame.pack();
+            })
+        .start();
     // thisJframe.setLocationRelativeTo(null);
   }
 
