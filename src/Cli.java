@@ -1,5 +1,3 @@
-import javax.script.*;
-
 public class Cli {
   public void run(String... args) {
     ImageGenerator imgg = new ImageGenerator();
