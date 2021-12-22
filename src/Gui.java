@@ -23,8 +23,7 @@ public class Gui extends JFrame {
 
     FractalImage fractal = new FractalImage(ig, this);
     imageButtonPanel = new ImageButtonPanel(ig, fractal);
-    fractalButtonPannel =
-        new FractalButtonPanel(ig, fractal, ig.getFunction(), this);
+    fractalButtonPannel = new FractalButtonPanel(ig, fractal, ig.getFunction(), this);
 
     JPanel buttonPanel = new JPanel();
     BoxLayout b = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
