@@ -1,3 +1,4 @@
+import java.util.EmptyStackException;
 import java.util.Stack;
 import java.util.function.Function;
 
@@ -12,6 +13,7 @@ public class Julia implements TwoDoublesToInt {
   private int max = 1000;
   private int min = 0;
   private int radius = 2;
+  private String funcString = "+ * z z c -0.729 0.1889";
   private Function<Complex, Complex> func = z -> z.multiply(z).add(new Complex(-0.729, 0.1889));
 
   public static Julia JuliaFactory(int max, int min, int radius, Function<Complex, Complex> f) {
@@ -31,33 +33,50 @@ public class Julia implements TwoDoublesToInt {
   public static Function<Complex, Complex> parseFxFromString(String fx) {
     // On parse en notation polonaise
     String[] f = fx.split(" ");
-    Stack top = new Stack();
+    Stack<String> top = new Stack<>();
 
-    for (String a : f) {
-      top.push(a);
+    // il faut mettre les strings dans le sens inverse
+    for (int i = f.length - 1; i >= 0; i--) {
+      top.push(f[i]);
     }
 
-    return recursiveParse(top);
+    Function<Complex, Complex> func;
+    try {
+      func = recursiveParse(top);
+    } catch (EmptyStackException | NumberFormatException e) {
+      return null;
+    }
+    return func;
   }
 
-  private static Function<Complex, Complex> recursiveParse(Stack<String> formula) {
+  private static Function<Complex, Complex> recursiveParse(Stack<String> formula) throws EmptyStackException, NumberFormatException {
     String op = formula.pop();
 
     Function<Complex, Complex> f = z -> z;
 
     switch (op) {
       case "+":
-        f = z -> (recursiveParse(formula).apply(z)).add(recursiveParse(formula).apply(z));
+        Function<Complex, Complex> f1 = recursiveParse(formula);
+        Function<Complex, Complex> f2 = recursiveParse(formula);
+        if (f1 == null || f2 == null) return null;
+        f = z -> (f1.apply(z)).add(f2.apply(z));
         break;
       case "*":
-        f = z -> (recursiveParse(formula).apply(z)).multiply(recursiveParse(formula).apply(z));
+        Function<Complex, Complex> f3 = recursiveParse(formula);
+        Function<Complex, Complex> f4 = recursiveParse(formula);
+        if (f3 == null || f4 == null) return null;
+        f = z -> (f3.apply(z)).multiply(f4.apply(z));
         break;
       case "c":
-        f = z -> new Complex(Double.parseDouble(formula.pop()), Double.parseDouble(formula.pop()));
+        double d1 = Double.parseDouble(formula.pop());
+        double d2 = Double.parseDouble(formula.pop());
+        f = z -> new Complex(d1, d2);
         break;
       case "z":
         f = z -> z;
         break;
+      default:
+        return null;
     }
 
     return f;
