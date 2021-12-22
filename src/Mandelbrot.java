@@ -6,6 +6,14 @@ public class Mandelbrot implements TwoDoublesToInt {
     if (max >= 0) this.max = max;
   }
 
+  public Mandelbrot() {
+    max = 500;
+  }
+
+  public Mandelbrot(int iterations) {
+    max = iterations;
+  }
+
   @Override
   public int doublesToInt(double x, double y) {
     Complex c = new Complex(x, y);

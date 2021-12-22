@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.util.function.Function;
 import javax.swing.*;
 import javax.swing.border.Border;
 
@@ -35,24 +34,21 @@ public class FractalButtonPanel extends JPanel {
           allowSpinner = false;
           fractalOptions.getUI().setPopupVisible(fractalOptions, false);
           String s = (String) fractalOptions.getSelectedItem();
+          errorFormat.setVisible(false);
           switch (s) {
             case "Julia":
-              Function<Complex, Complex> f = Julia.parseFxFromString(juliaFunc.getText());
-              if (f != null) {
-                errorFormat.setVisible(false);
-                function = Julia.JuliaFactory((Integer) iterations.getValue(), 0, 2, f);
-              }
-              else {
-                errorFormat.setVisible(true);
-                gui.pack();
+              try {
+                function = Julia.JuliaFactory((Integer) iterations.getValue(), juliaFunc.getText());
+              } catch (IllegalArgumentException ex) {
                 function = new Julia();
               }
+              juliaFunc.setText(((Julia) function).getFunctionString());
               funcLabel.setVisible(true);
               juliaFunc.setVisible(true);
               juliaFunc.setEnabled(true);
               break;
             case "Mandelbrot":
-              function = new Mandelbrot();
+              function = new Mandelbrot((Integer) iterations.getValue());
               funcLabel.setVisible(false);
               juliaFunc.setVisible(false);
               juliaFunc.setEnabled(false);
@@ -79,18 +75,20 @@ public class FractalButtonPanel extends JPanel {
 
     juliaFunc.addActionListener(
         e -> {
-          Function<Complex, Complex> f = Julia.parseFxFromString(juliaFunc.getText());
-          if (f != null) {
+          try {
+            function = Julia.JuliaFactory((Integer) iterations.getValue(), juliaFunc.getText());
             errorFormat.setVisible(false);
-            function = Julia.JuliaFactory((Integer) iterations.getValue(), 0, 2, f);
             ig.setFractalGenerationFunction(function);
             fractal.recalculate();
+          } catch (IllegalArgumentException ex) {
+            errorFormat.setVisible(true);
+            gui.pack();
           }
-          else errorFormat.setVisible(true);
-          gui.pack();
         });
 
     errorFormat.setVisible(false);
+
+    if (fun instanceof Julia) juliaFunc.setText(((Julia) fun).getFunctionString());
 
     add(new JLabel("type de fractale:"));
     add(fractalOptions);

@@ -13,17 +13,28 @@ public class Julia implements TwoDoublesToInt {
   private int max = 1000;
   private int min = 0;
   private int radius = 2;
-  private String funcString = "+ * z z c -0.729 0.1889";
+  private String functionString = "+ * z z c -0.729 0.1889";
   private Function<Complex, Complex> func = z -> z.multiply(z).add(new Complex(-0.729, 0.1889));
 
-  public static Julia JuliaFactory(int max, int min, int radius, Function<Complex, Complex> f) {
+  public static Julia JuliaFactory(int max, int min, int radius, String functionString)
+      throws IllegalArgumentException {
+    Function<Complex, Complex> f = Julia.parseFxFromString(functionString);
+    if (f == null) throw new IllegalArgumentException();
     Julia x = new Julia();
     x.max = max;
     x.min = min;
     x.radius = radius;
+    x.functionString = functionString;
     x.func = f;
-
     return x;
+  }
+
+  public static Julia JuliaFactory(int max, String functionString) throws IllegalArgumentException {
+    return Julia.JuliaFactory(max, 0, 2, functionString);
+  }
+
+  public String getFunctionString() {
+    return functionString;
   }
 
   /**
@@ -49,7 +60,8 @@ public class Julia implements TwoDoublesToInt {
     return func;
   }
 
-  private static Function<Complex, Complex> recursiveParse(Stack<String> formula) throws EmptyStackException, NumberFormatException {
+  private static Function<Complex, Complex> recursiveParse(Stack<String> formula)
+      throws EmptyStackException, NumberFormatException {
     String op = formula.pop();
 
     Function<Complex, Complex> f = z -> z;

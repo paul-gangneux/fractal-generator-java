@@ -1,11 +1,11 @@
-import java.util.function.Function;
 import javax.script.*;
 
 public class Cli {
   public void run(String... args) {
     ImageGenerator imgg = new ImageGenerator();
     String output = "images/output.png";
-    Function<Complex, Complex> f = z -> z.multiply(z).add(new Complex(-0.729, 0.1889));
+    String f = "+ * z z c -0.729 0.1889";
+    // "z.multiply(z).add(new Complex(-0.729, 0.1889));";
 
     boolean isMandelbrot = false;
     for (String arg_tot : args) {
@@ -34,34 +34,29 @@ public class Cli {
           isMandelbrot = true;
           break;
         case "--julia":
-          try {
-            ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
-            f =
-                (Function<Complex, Complex>)
-                    engine.eval(
-                        String.format(
-                            "var Complex= Java.type(\"Complex\");new"
-                                + " java.util.function.Function(function(z){return %s;})",
-                            sa[1]));
-          } catch (final ScriptException e) {
-            e.printStackTrace();
-          }
-
+          f = sa[1];
           break;
         default:
           System.out.println(arg);
           usage();
+          System.exit(1);
           break;
       }
     }
 
-    TwoDoublesToInt func;
+    TwoDoublesToInt func = null;
     if (isMandelbrot) {
       func = new Mandelbrot();
     } else {
-      func = Julia.JuliaFactory(1000, 0, 2, f);
+      try {
+        func = Julia.JuliaFactory(1000, 0, 2, f);
+      } catch (IllegalArgumentException e) {
+        System.out.println(f + " n'est pas une fonction valide");
+        System.exit(1);
+      }
     }
     imgg.setFractalGenerationFunction(func);
+    imgg.generateBuffer();
     imgg.createImage(output);
   }
 
