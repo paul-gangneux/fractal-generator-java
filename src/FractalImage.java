@@ -93,8 +93,8 @@ public class FractalImage extends JLabel implements MouseInputListener {
   @Override
   public void mouseReleased(MouseEvent e) {
     if (calculating) return;
-    recalculateAfterShift();
     setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    recalculateAfterShift();
   }
 
   @Override

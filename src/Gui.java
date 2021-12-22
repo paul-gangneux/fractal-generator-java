@@ -64,6 +64,7 @@ public class Gui extends JFrame {
         });
 
     interruptButton.setEnabled(false);
+    interruptButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
     saveImagePanel.add(new JLabel("nom:"));
     saveImagePanel.add(nameField);
