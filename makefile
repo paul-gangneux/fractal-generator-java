@@ -19,6 +19,24 @@ TestMain: src/TestMain.java
 test: TestMain
 	java -classpath bld TestMain
 
+demo: Main
+	java -classpath bld Main \
+		--julia="+ * z z c 0 0.8" \
+		--output=images/1.png
+	java -classpath bld Main \
+		--julia="+ * z z c 0.285 0" \
+		--output=images/2.png
+	java -classpath bld Main \
+		--julia="+ * z z c -0.75 0.11" \
+		--output=images/3.png
+	java -classpath bld Main \
+		--output=images/3-mandelbrot.png
+
+
+
+
+
+
 format:
 	java \
 		--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
