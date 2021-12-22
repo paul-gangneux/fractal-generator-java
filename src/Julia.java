@@ -65,9 +65,9 @@ public class Julia implements TwoDoublesToInt {
 
   @Override
   public int doublesToInt(double x, double y) {
-    int res = 0;
+    int res = min;
     Complex z = new Complex(x, y);
-    while (res < max - 1 && z.abs() <= radius) {
+    while (res < max && z.abs() <= radius) {
       z = func.apply(z);
       res++;
     }
@@ -82,5 +82,11 @@ public class Julia implements TwoDoublesToInt {
   @Override
   public int minValue() {
     return min;
+  }
+
+  @Override
+  public void setMax(int newMax) {
+    if (newMax < min) max = min + 1;
+    else max = newMax;
   }
 }

@@ -61,7 +61,8 @@ public class Cli {
     } else {
       func = Julia.JuliaFactory(1000, 0, 2, f);
     }
-    imgg.create(func, output);
+    imgg.setFractalGenerationFunction(func);
+    imgg.createImage(output);
   }
 
   private void usage() {

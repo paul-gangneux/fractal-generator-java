@@ -1,6 +1,6 @@
 public class Mandelbrot implements TwoDoublesToInt {
 
-  private int max = 200;
+  private int max = 500;
 
   public void setMax(int max) {
     if (max >= 0) this.max = max;
