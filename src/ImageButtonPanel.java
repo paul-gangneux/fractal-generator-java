@@ -146,7 +146,7 @@ public class ImageButtonPanel extends JPanel {
     this.add(zoomButtons);
     this.add(new JLabel("anti-crénelage:"));
     this.add(antiAliBox);
-    this.add(new JLabel("pas de disctétisation:"));
+    this.add(new JLabel("pas de discrétisation:"));
     this.add(step);
     this.add(new JLabel("coordonnées complexes:"));
     this.add(new JLabel("point 1:"));
