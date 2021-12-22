@@ -6,6 +6,8 @@ public class Cli {
     // "z.multiply(z).add(new Complex(-0.729, 0.1889));";
 
     boolean isMandelbrot = false;
+    boolean makeTextFile = false;
+
     for (String arg_tot : args) {
       String[] sa = arg_tot.split("=");
       String arg = sa[0];
@@ -34,6 +36,9 @@ public class Cli {
         case "--julia":
           f = sa[1];
           break;
+        case "--text":
+          makeTextFile = true;
+          break;
         default:
           System.out.println(arg);
           usage();
@@ -56,6 +61,7 @@ public class Cli {
     imgg.setFractalGenerationFunction(func);
     imgg.generateBuffer();
     imgg.createImage(output);
+    if (makeTextFile) imgg.createTextFile(output);
   }
 
   private void usage() {

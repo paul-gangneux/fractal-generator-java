@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -388,6 +389,65 @@ public class ImageGenerator {
       ImageIO.write(image, "PNG", file);
     } catch (IOException e) {
       e.printStackTrace();
+    }
+  }
+
+  public void createTextFile(String pathname) {
+    applyZoom();
+    applyShift();
+    if (!pathname.endsWith(".txt")) pathname = pathname + ".txt";
+    File file = new File(pathname);
+    FileWriter w = null;
+    String s = "Type de fractale :\n";
+    if (function instanceof Mandelbrot) {
+      s += "  Mandelbrot\n";
+    } else if (function instanceof Julia) {
+      s += "  Julia\n" + "  Fonction : " + ((Julia) function).getFunctionString() + "\n";
+
+    } else {
+      s += "  inconnu\n";
+    }
+    s +=
+        "  nombre d'itérations : "
+            + function.maxValue()
+            + "\n"
+            + "Image :\n"
+            + "  taille : "
+            + width
+            + " x "
+            + height
+            + "\n"
+            + "  coordonnées complexes :\n"
+            + "    ("
+            + x1
+            + ","
+            + y1
+            + ") , ("
+            + x2
+            + ","
+            + y2
+            + ")\n"
+            + "  pas de discrétisation : "
+            + step
+            + "\n"
+            + "  anti-crénelage : "
+            + ((antiAliasing) ? ("x" + antiAliasAmount) : "aucun")
+            + "\n"
+            + "  fonction d'affichage : "
+            + getCurrentDrawFunctionString()
+            + "\n";
+    try {
+      file.createNewFile();
+      w = new FileWriter(pathname);
+      w.write(s);
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        if (w != null) w.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
 
