@@ -102,4 +102,18 @@ public class FractalButtonPanel extends JPanel {
     Border bo2 = BorderFactory.createTitledBorder(bo, "fractale");
     this.setBorder(bo2);
   }
+
+  private void setEnabledForAll(boolean bool) {
+    fractalOptions.setEnabled(bool);
+    iterations.setEnabled(bool);
+    juliaFunc.setEnabled(bool);
+  }
+
+  public void disableAll() {
+    setEnabledForAll(false);
+  }
+
+  public void enableAll() {
+    setEnabledForAll(true);
+  }
 }
