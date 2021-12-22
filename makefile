@@ -1,4 +1,4 @@
-Main: images src/Main.java format
+Main: images src/Main.java
 	javac src/*.java -d bld/
 
 ./PHONY: clean
