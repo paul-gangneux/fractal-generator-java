@@ -34,16 +34,24 @@ public class Gui extends JFrame {
     nameField.setText("image");
     nameField.setColumns(8);
 
-    JButton saveButton = new JButton("sauvegarder");
+    JButton saveImageButton = new JButton("sauvegarder image");
 
-    saveButton.addActionListener(
+    saveImageButton.addActionListener(
         e -> {
           ig.createImage("images/" + nameField.getText());
         });
 
+    JButton saveTextButton = new JButton("créer fichier texte");
+
+    saveTextButton.addActionListener(
+        e -> {
+          ig.createTextFile("images/" + nameField.getText());
+        });
+
     saveImagePanel.add(new JLabel("nom:"));
     saveImagePanel.add(nameField);
-    saveImagePanel.add(saveButton);
+    saveImagePanel.add(saveImageButton);
+    saveImagePanel.add(saveTextButton);
 
     buttonPanel.add(imageButtonPanel);
     buttonPanel.add(new JLabel(" "));
