@@ -4,6 +4,15 @@ import javax.swing.border.Border;
 
 public class Gui extends JFrame {
 
+  ImageButtonPanel imageButtonPanel;
+  FractalButtonPanel fractalButtonPannel;
+
+  JTextField nameField;
+  JButton saveImageButton;
+  JButton saveTextButton;
+
+  JButton interruptButton;
+
   public Gui(ImageGenerator ig) {
 
     setFont(new Font("SansSerif", Font.PLAIN, 30));
@@ -13,10 +22,8 @@ public class Gui extends JFrame {
     setLayout(new FlowLayout());
 
     FractalImage fractal = new FractalImage(ig, this);
-    ImageButtonPanel imageButtonPanel = new ImageButtonPanel(ig, fractal);
-    fractal.setImageButtonPanel(imageButtonPanel);
-    FractalButtonPanel fractalButtonPannel =
-        new FractalButtonPanel(ig, fractal, ig.getFunction(), this);
+    imageButtonPanel = new ImageButtonPanel(ig, fractal);
+    fractalButtonPannel = new FractalButtonPanel(ig, fractal, ig.getFunction(), this);
 
     JPanel buttonPanel = new JPanel();
     BoxLayout b = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
@@ -30,23 +37,33 @@ public class Gui extends JFrame {
     Border bo2 = BorderFactory.createTitledBorder(bo, "sauvegarde");
     saveImagePanel.setBorder(bo2);
 
-    JTextField nameField = new JTextField();
+    nameField = new JTextField();
     nameField.setText("image");
     nameField.setColumns(8);
 
-    JButton saveImageButton = new JButton("sauvegarder image");
+    saveImageButton = new JButton("sauvegarder image");
 
     saveImageButton.addActionListener(
         e -> {
           ig.createImage("images/" + nameField.getText());
         });
 
-    JButton saveTextButton = new JButton("créer fichier texte");
+    saveTextButton = new JButton("créer fichier texte");
 
     saveTextButton.addActionListener(
         e -> {
           ig.createTextFile("images/" + nameField.getText());
         });
+
+    interruptButton = new JButton("annuler");
+
+    interruptButton.addActionListener(
+        e -> {
+          ig.interrupt();
+        });
+
+    interruptButton.setEnabled(false);
+    interruptButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
     saveImagePanel.add(new JLabel("nom:"));
     saveImagePanel.add(nameField);
@@ -58,6 +75,8 @@ public class Gui extends JFrame {
     buttonPanel.add(fractalButtonPannel);
     buttonPanel.add(new JLabel(" "));
     buttonPanel.add(saveImagePanel);
+    buttonPanel.add(new JLabel(" "));
+    buttonPanel.add(interruptButton);
 
     getContentPane().add(buttonPanel);
     getContentPane().add(fractal);
@@ -65,5 +84,27 @@ public class Gui extends JFrame {
     setLocationRelativeTo(null); // centre la fenêtre
     pack();
     EventQueue.invokeLater(() -> setVisible(true));
+  }
+
+  public void disableAll() {
+    imageButtonPanel.disableAll();
+    fractalButtonPannel.disableAll();
+    nameField.setEnabled(false);
+    saveImageButton.setEnabled(false);
+    saveTextButton.setEnabled(false);
+    interruptButton.setEnabled(true);
+  }
+
+  public void enableAll() {
+    imageButtonPanel.enableAll();
+    fractalButtonPannel.enableAll();
+    nameField.setEnabled(true);
+    saveImageButton.setEnabled(true);
+    saveTextButton.setEnabled(true);
+    interruptButton.setEnabled(false);
+  }
+
+  public void updateValues() {
+    imageButtonPanel.updateValues();
   }
 }

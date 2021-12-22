@@ -8,17 +8,15 @@ public class FractalImage extends JLabel implements MouseInputListener {
 
   private transient ImageGenerator ig;
   private transient BufferedImage img;
-  private JFrame frame;
-
-  private ImageButtonPanel ipp;
+  private Gui gui;
 
   private boolean calculating;
 
   private int anchorX = 0, anchorY = 0;
   private int newX = 0, newY = 0;
 
-  public FractalImage(ImageGenerator ig, JFrame frame) {
-    this.frame = frame;
+  public FractalImage(ImageGenerator ig, Gui gui) {
+    this.gui = gui;
     this.ig = ig;
     img = ig.getImage();
     setIcon(new ImageIcon(img));
@@ -26,10 +24,6 @@ public class FractalImage extends JLabel implements MouseInputListener {
     addMouseMotionListener(this);
     setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     calculating = false;
-  }
-
-  public void setImageButtonPanel(ImageButtonPanel imageButtonPanel) {
-    ipp = imageButtonPanel;
   }
 
   private void redraw() {
@@ -50,18 +44,24 @@ public class FractalImage extends JLabel implements MouseInputListener {
   public void recalculate() {
     if (calculating) return;
     calculating = true;
+    gui.disableAll();
     ig.applyShift();
     ig.applyZoom();
-    ipp.updateValues();
-    frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    gui.updateValues();
+    gui.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-    ig.generateBuffer();
-    frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-    setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-    img = ig.getImage();
-    setIcon(new ImageIcon(img));
-    calculating = false;
-    frame.pack();
+    new Thread(
+            () -> {
+              ig.generateBuffer();
+              gui.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+              setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+              img = ig.getImage();
+              setIcon(new ImageIcon(img));
+              gui.pack();
+              calculating = false;
+              gui.enableAll();
+            })
+        .start();
     // thisJframe.setLocationRelativeTo(null);
   }
 
@@ -93,8 +93,8 @@ public class FractalImage extends JLabel implements MouseInputListener {
   @Override
   public void mouseReleased(MouseEvent e) {
     if (calculating) return;
-    recalculateAfterShift();
     setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    recalculateAfterShift();
   }
 
   @Override

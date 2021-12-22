@@ -165,11 +165,15 @@ public class ImageButtonPanel extends JPanel {
     hspin.setEnabled(bool);
     wspin.setEnabled(bool);
     zoomLevel.setEnabled(bool);
+    zoomMin.setEnabled(bool);
+    zoomPlus.setEnabled(bool);
     step.setEnabled(bool);
     point1r.setEnabled(bool);
     point1i.setEnabled(bool);
     point2r.setEnabled(bool);
     point2i.setEnabled(bool);
+    antiAliBox.setEnabled(bool);
+    drawOptionBox.setEnabled(bool);
   }
 
   private void updateAllValuesInIG() {
@@ -203,10 +207,8 @@ public class ImageButtonPanel extends JPanel {
 
   private void onAction() {
     spinnersAllowed = false;
-    setEnabledForAll(false);
     updateAllValuesInIG();
     fractal.recalculate();
-    setEnabledForAll(true);
     spinnersAllowed = true;
   }
 
@@ -216,12 +218,10 @@ public class ImageButtonPanel extends JPanel {
       c.addChangeListener(
           event -> {
             if (!spinnersAllowed) return;
-            setEnabledForAll(false);
             updateAllValuesInIG();
             ig.setHeight((Integer) hspin.getValue());
             ig.setWidth((Integer) wspin.getValue());
             fractal.recalculate();
-            setEnabledForAll(true);
           });
     }
   }
@@ -238,5 +238,13 @@ public class ImageButtonPanel extends JPanel {
     field.setColumns(columns);
     field.setValue(0.0);
     return field;
+  }
+
+  public void disableAll() {
+    setEnabledForAll(false);
+  }
+
+  public void enableAll() {
+    setEnabledForAll(true);
   }
 }
