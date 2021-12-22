@@ -60,6 +60,16 @@ public class Cli {
 
   private void usage() {
     // TODO
-    System.err.println("bad arg");
+    //
+    System.err.println(
+        "--width: Largeur de l'image\n"
+            + "--height: Hauteur de l'image\n"
+            + "--zoom: Zoom de l'image\n"
+            + "--shiftx: Decalage de l'image sur X\n"
+            + "--shifty: Decalage de l'image sur Y\n"
+            + "--output: Path de sortie de l'image\n"
+            + "--mandelbrot: Creer une representation d'un ensemble de mandelbrot.\n"
+            + "--julia: Creer une representation d'un ensemble de Julia utilisant la fonction"
+            + " fournie pour le calcul du pas suivant.");
   }
 }
