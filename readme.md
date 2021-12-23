@@ -12,6 +12,7 @@ L'interface graphique est composée d'un panneau d'affichage et d'un panneau de 
 Le panneau de réglage a 3 sous parties, le paramétrage de l'image (taille, discrétisation coordonnées et teintes),
 la fractale en elle même (Julia ou Mandelbrot, nombre d’itération, fonction dans le cas d'un ensemble de Julia),
 et enfin de réglages de la sauvegarde (chemin et nom du fichier).
+On peut de plus générer un fichier texte décrivant la fractale générée.
 
 ## Utilisation de la ligne de commande
 Pour utiliser la ligne de commande, d'abord compilez le projet avec `make`,
