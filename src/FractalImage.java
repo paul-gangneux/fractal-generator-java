@@ -57,7 +57,7 @@ public class FractalImage extends JLabel implements MouseInputListener {
               setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
               img = ig.getImage();
               setIcon(new ImageIcon(img));
-              gui.pack();
+              EventQueue.invokeLater(() -> gui.pack());
               calculating = false;
               gui.enableAll();
             })
