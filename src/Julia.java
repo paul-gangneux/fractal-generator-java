@@ -16,21 +16,23 @@ public class Julia implements FractalFunction {
   private String functionString = "+ * z z c -0.729 0.1889";
   private Function<Complex, Complex> func = z -> z.multiply(z).add(new Complex(-0.729, 0.1889));
 
-  public static Julia JuliaFactory(int max, int min, int radius, String functionString)
+  public Julia(int max, int min, int radius, String functionString)
       throws IllegalArgumentException {
     Function<Complex, Complex> f = Julia.parseFxFromString(functionString);
     if (f == null) throw new IllegalArgumentException();
-    Julia x = new Julia();
-    x.max = max;
-    x.min = min;
-    x.radius = radius;
-    x.functionString = functionString;
-    x.func = f;
-    return x;
+    this.max = max;
+    this.min = min;
+    this.radius = radius;
+    this.functionString = functionString;
+    this.func = f;
   }
 
-  public static Julia JuliaFactory(int max, String functionString) throws IllegalArgumentException {
-    return Julia.JuliaFactory(max, 0, 2, functionString);
+  public Julia(int max, String functionString) throws IllegalArgumentException {
+    this(max, 0, 2, functionString);
+  }
+
+  public Julia() throws IllegalArgumentException {
+    this(1000, 0, 2, "+ * z z c -0.729 0.1889");
   }
 
   public String getFunctionString() {

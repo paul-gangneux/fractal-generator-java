@@ -38,7 +38,7 @@ public class FractalButtonPanel extends JPanel {
           switch (s) {
             case "Julia":
               try {
-                function = Julia.JuliaFactory((Integer) iterations.getValue(), juliaFunc.getText());
+                function = new Julia((Integer) iterations.getValue(), juliaFunc.getText());
               } catch (IllegalArgumentException ex) {
                 function = new Julia();
               }
@@ -76,7 +76,7 @@ public class FractalButtonPanel extends JPanel {
     juliaFunc.addActionListener(
         e -> {
           try {
-            function = Julia.JuliaFactory((Integer) iterations.getValue(), juliaFunc.getText());
+            function = new Julia((Integer) iterations.getValue(), juliaFunc.getText());
             errorFormat.setVisible(false);
             ig.setFractalGenerationFunction(function);
             fractal.recalculate();

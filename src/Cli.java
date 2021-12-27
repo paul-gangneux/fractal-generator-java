@@ -52,7 +52,7 @@ public class Cli {
       func = new Mandelbrot();
     } else {
       try {
-        func = Julia.JuliaFactory(1000, 0, 2, f);
+        func = new Julia(1000, 0, 2, f);
       } catch (IllegalArgumentException e) {
         System.out.println(f + " n'est pas une fonction valide");
         System.exit(1);
