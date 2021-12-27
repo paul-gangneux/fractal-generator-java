@@ -451,8 +451,11 @@ public class ImageGenerator {
             + "  anti-crénelage : "
             + ((antiAliasing) ? ("x" + antiAliasAmount) : "aucun")
             + "\n"
-            + "  fonction d'affichage : "
+            + "  fonction d'affichage :\n    "
             + getCurrentDrawFunctionString()
+            + "\n"
+            + "    intensité : "
+            + getIntensity()
             + "\n";
     try {
       file.createNewFile();
