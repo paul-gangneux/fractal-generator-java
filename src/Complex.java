@@ -30,6 +30,14 @@ public class Complex {
     return new Complex(newA, newB);
   }
 
+  public Complex divide(Complex c) {
+    double d = c.getA() * c.getA() + c.getB() * c.getB();
+    double newA = (a * c.getA() + b * c.getB()) / d;
+    double newB = (b * c.getA() - a * c.getB()) / d;
+
+    return new Complex(newA, newB);
+  }
+
   public double abs() {
     return Math.sqrt(a * a + b * b);
   }

@@ -81,6 +81,12 @@ public class Julia implements FractalFunction {
         if (f3 == null || f4 == null) return null;
         f = z -> (f3.apply(z)).multiply(f4.apply(z));
         break;
+      case "/":
+        Function<Complex, Complex> f8 = recursiveParse(formula);
+        Function<Complex, Complex> f9 = recursiveParse(formula);
+        if (f8 == null || f9 == null) return null;
+        f = z -> (f8.apply(z)).divide(f9.apply(z));
+        break;
       case "c":
         double d1 = Double.parseDouble(formula.pop());
         double d2 = Double.parseDouble(formula.pop());
