@@ -9,7 +9,7 @@ import java.util.function.Function;
 // TwoDoublesToInt func = Julia.JuliaFactory(1000, 0, 2, f);
 // ig.create(func, "images/image.png");
 
-public class Julia implements TwoDoublesToInt {
+public class Julia implements FractalFunction {
   private int max = 1000;
   private int min = 0;
   private int radius = 2;

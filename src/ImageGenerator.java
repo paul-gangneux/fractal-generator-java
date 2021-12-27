@@ -14,7 +14,7 @@ public class ImageGenerator {
   private int width, height;
   private double zoom;
   private double shiftX, shiftY;
-  private TwoDoublesToInt function;
+  private FractalFunction function;
   private BufferedImage image;
   private int antiAliasAmount; // taux d'anti-crénelage
 
@@ -253,7 +253,7 @@ public class ImageGenerator {
     currentDrawFunction = drawFunctionMap.get(functionDesc);
   }
 
-  public void setFractalGenerationFunction(TwoDoublesToInt f) {
+  public void setFractalGenerationFunction(FractalFunction f) {
     function = f;
   }
 
@@ -315,7 +315,7 @@ public class ImageGenerator {
     return y2;
   }
 
-  public TwoDoublesToInt getFunction() {
+  public FractalFunction getFunction() {
     return function;
   }
 

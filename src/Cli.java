@@ -47,7 +47,7 @@ public class Cli {
       }
     }
 
-    TwoDoublesToInt func = null;
+    FractalFunction func = null;
     if (isMandelbrot) {
       func = new Mandelbrot();
     } else {
@@ -65,8 +65,6 @@ public class Cli {
   }
 
   private void usage() {
-    // TODO
-    //
     System.err.println(
         "--width: Largeur de l'image\n"
             + "--height: Hauteur de l'image\n"

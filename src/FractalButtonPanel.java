@@ -6,7 +6,7 @@ public class FractalButtonPanel extends JPanel {
 
   private transient ImageGenerator ig;
   private FractalImage fractal;
-  private transient TwoDoublesToInt function;
+  private transient FractalFunction function;
 
   private JComboBox<String> fractalOptions = new JComboBox<>(new String[] {"Julia", "Mandelbrot"});
   private JSpinner iterations = new JSpinner();
@@ -18,7 +18,7 @@ public class FractalButtonPanel extends JPanel {
   boolean allowSpinner = true;
 
   public FractalButtonPanel(
-      ImageGenerator imageGenerator, FractalImage fractalImage, TwoDoublesToInt fun, Gui gui) {
+      ImageGenerator imageGenerator, FractalImage fractalImage, FractalFunction fun, Gui gui) {
     this.function = fun;
     this.ig = imageGenerator;
     this.fractal = fractalImage;
