@@ -89,6 +89,22 @@ public class Julia implements FractalFunction {
       case "z":
         f = z -> z;
         break;
+      case "cos":
+        Function<Complex, Complex> f5 = recursiveParse(formula);
+        if (f5 == null) return null;
+        f = z -> (f5.apply(z)).cos();
+        break;
+      case "sin":
+        Function<Complex, Complex> f6 = recursiveParse(formula);
+        if (f6 == null) return null;
+        f = z -> (f6.apply(z)).sin();
+        break;
+      case "power":
+        Function<Complex, Complex> f7 = recursiveParse(formula);
+        int n = Integer.parseInt(formula.pop());
+        if (f7 == null) return null;
+        f = z -> (f7.apply(z)).power(n);
+        break;
       default:
         return null;
     }
