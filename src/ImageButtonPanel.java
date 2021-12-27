@@ -57,10 +57,10 @@ public class ImageButtonPanel extends JPanel {
     ((JSpinner.DefaultEditor) (hspin.getEditor())).getTextField().setColumns(4);
     ((JSpinner.DefaultEditor) (wspin.getEditor())).getTextField().setColumns(4);
 
-    sizeButtons.add(new JLabel("H"));
-    sizeButtons.add(hspin);
-    sizeButtons.add(new JLabel(" L"));
+    sizeButtons.add(new JLabel("L"));
     sizeButtons.add(wspin);
+    sizeButtons.add(new JLabel(" H"));
+    sizeButtons.add(hspin);
 
     // bouttons zoom
     JPanel zoomButtons = new JPanel();

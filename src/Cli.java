@@ -3,10 +3,11 @@ public class Cli {
     ImageGenerator imgg = new ImageGenerator();
     String output = "images/output.png";
     String f = "+ * z z c -0.729 0.1889";
-    // "z.multiply(z).add(new Complex(-0.729, 0.1889));";
 
     boolean isMandelbrot = false;
     boolean makeTextFile = false;
+
+    int iterations = 1000;
 
     for (String arg_tot : args) {
       String[] sa = arg_tot.split("=");
@@ -39,6 +40,15 @@ public class Cli {
         case "--text":
           makeTextFile = true;
           break;
+        case "--iterations":
+          iterations = Integer.parseInt(sa[1]);
+          break;
+        case "--intensity":
+          imgg.setIntensity(Integer.parseInt(sa[1]));
+          break;
+        case "--luminosity":
+          imgg.setDrawFunction("Luminosité");
+          break;
         default:
           System.out.println(arg);
           usage();
@@ -49,10 +59,10 @@ public class Cli {
 
     FractalFunction func = null;
     if (isMandelbrot) {
-      func = new Mandelbrot();
+      func = new Mandelbrot(iterations);
     } else {
       try {
-        func = new Julia(1000, 0, 2, f);
+        func = new Julia(iterations, f);
       } catch (IllegalArgumentException e) {
         System.out.println(f + " n'est pas une fonction valide");
         System.exit(1);
@@ -67,13 +77,17 @@ public class Cli {
   private void usage() {
     System.err.println(
         "--width: Largeur de l'image\n"
-            + "--height: Hauteur de l'image\n"
-            + "--zoom: Zoom de l'image\n"
-            + "--shiftx: Decalage de l'image sur X\n"
-            + "--shifty: Decalage de l'image sur Y\n"
-            + "--output: Path de sortie de l'image\n"
+            + "--height=[arg]: Hauteur de l'image\n"
+            + "--zoom=[arg]: Zoom de l'image\n"
+            + "--shiftx=[arg]: Decalage de l'image sur X\n"
+            + "--shifty=[arg]: Decalage de l'image sur Y\n"
+            + "--output=[arg]: Nom de sortie de l'image\n"
             + "--mandelbrot: Creer une representation d'un ensemble de mandelbrot.\n"
-            + "--julia: Creer une representation d'un ensemble de Julia utilisant la fonction"
-            + " fournie pour le calcul du pas suivant.");
+            + "--julia=[arg]: Créer une representation d'un ensemble de Julia utilisant la fonction"
+            + " fournie pour le calcul du pas suivant.\n"
+            + "--text: Créer un fichier texte decrivant la fractale\n"
+            + "--intensity=[arg]: Intensité de l'affichage\n"
+            + "--luminosity: L'image sera en noir et blanc (et un peu bleu)\n"
+            + "--iterations=[arg]: Nombre d'itérations de la fonction complexes avant affichage\n");
   }
 }
