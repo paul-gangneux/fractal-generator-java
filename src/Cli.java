@@ -20,13 +20,28 @@ public class Cli {
           imgg.setHeight(Integer.parseInt(sa[1]));
           break;
         case "--zoom":
-          imgg.setZoom(Integer.parseInt(sa[1]));
+          imgg.setZoom(Double.parseDouble(sa[1]));
           break;
         case "--shiftx":
-          imgg.setShiftX(Integer.parseInt(sa[1]));
+          imgg.setShiftX(Double.parseDouble(sa[1]));
           break;
         case "--shifty":
-          imgg.setShiftY(Integer.parseInt(sa[1]));
+          imgg.setShiftY(Double.parseDouble(sa[1]));
+          break;
+        case "--x1":
+          imgg.setX1(Double.parseDouble(sa[1]));
+          break;
+        case "--y1":
+          imgg.setY1(Double.parseDouble(sa[1]));
+          break;
+        case "--x2":
+          imgg.setX2(Double.parseDouble(sa[1]));
+          break;
+        case "--y2":
+          imgg.setY2(Double.parseDouble(sa[1]));
+          break;
+        case "--step":
+          imgg.setStep(Double.parseDouble(sa[1]));
           break;
         case "--output":
           output = sa[1];
@@ -49,8 +64,11 @@ public class Cli {
         case "--luminosity":
           imgg.setDrawFunction("Luminosité");
           break;
+        case "--antialiasing":
+          imgg.setAntiAliasing(true);
+          imgg.setAntiAliasingAmount(Integer.parseInt(sa[1]));
+          break;
         default:
-          System.out.println(arg);
           usage();
           System.exit(1);
           break;
@@ -76,18 +94,35 @@ public class Cli {
 
   private void usage() {
     System.err.println(
-        "--width: Largeur de l'image\n"
-            + "--height=[arg]: Hauteur de l'image\n"
-            + "--zoom=[arg]: Zoom de l'image\n"
-            + "--shiftx=[arg]: Decalage de l'image sur X\n"
-            + "--shifty=[arg]: Decalage de l'image sur Y\n"
-            + "--output=[arg]: Nom de sortie de l'image\n"
-            + "--mandelbrot: Creer une representation d'un ensemble de mandelbrot.\n"
-            + "--julia=[arg]: Créer une representation d'un ensemble de Julia utilisant la fonction"
-            + " fournie pour le calcul du pas suivant.\n"
-            + "--text: Créer un fichier texte decrivant la fractale\n"
-            + "--intensity=[arg]: Intensité de l'affichage\n"
-            + "--luminosity: L'image sera en noir et blanc (et un peu bleu)\n"
-            + "--iterations=[arg]: Nombre d'itérations de la fonction complexes avant affichage\n");
+        "\n"
+            + "Arguments: \n\n"
+            + "  --width=[arg] --height=[arg]\n"
+            + "        Largeur et hauteur de l'image\n\n"
+            + "  --zoom=[arg]\n"
+            + "        Zoom de l'image. Plus le nombre est proche de 0, plus le zoom est grand\n\n"
+            + "  --shiftx=[arg] --shifty=[arg]\n"
+            + "        Decalage de l'image sur X et Y\n\n"
+            + "  --x1=[arg] --y1=[arg] --x2=[arg] --y2=[arg]\n"
+            + "        Coordonnées des points opposés du rectangle représenté sur le plan\n"
+            + "        complexe\n\n"
+            + "  --step=[arg]\n"
+            + "        Pas de discrétisation. Plus il est petit, plus l'image est grande\n\n"
+            + "  --output=[arg]\n"
+            + "        Nom de sortie de l'image\n\n"
+            + "  --mandelbrot\n"
+            + "        Créer une representation d'un ensemble de mandelbrot.\n\n"
+            + "  --julia=[arg]\n"
+            + "        Créer une representation d'un ensemble de Julia utilisant la fonction\n"
+            + "        fournie à l'argument.\n\n"
+            + "  --text\n"
+            + "        Créer un fichier texte décrivant la fractale\n\n"
+            + "  --intensity=[arg]\n"
+            + "        Intensité de l'affichage\n\n"
+            + "  --luminosity\n"
+            + "        L'image sera en noir et blanc (et un peu bleu)\n\n"
+            + "  --iterations=[arg]\n"
+            + "        Nombre d'itérations de la fonction complexe avant affichage\n\n"
+            + "  --antialiasing=[arg]\n"
+            + "        Qualité de l'anti-crénelage\n");
   }
 }

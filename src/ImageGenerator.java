@@ -235,6 +235,22 @@ public class ImageGenerator {
     height = (int) ((y2 - y1) / step);
   }
 
+  public void setX1(double x) {
+    setPoint1(x, y1);
+  }
+
+  public void setY1(double y) {
+    setPoint1(x1, y);
+  }
+
+  public void setX2(double x) {
+    setPoint2(x, y2);
+  }
+
+  public void setY2(double y) {
+    setPoint2(x2, y);
+  }
+
   public void setStep(double d) {
     if (d <= 0) return;
     step = d;
