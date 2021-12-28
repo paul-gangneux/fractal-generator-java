@@ -59,7 +59,7 @@ public class Cli {
           iterations = Integer.parseInt(sa[1]);
           break;
         case "--intensity":
-          imgg.setIntensity(Integer.parseInt(sa[1]));
+          imgg.setIntensity(Float.parseFloat(sa[1]));
           break;
         case "--luminosity":
           imgg.setDrawFunction("Luminosité");
