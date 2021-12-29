@@ -65,11 +65,17 @@ les options sont:
       Nombre d'itérations de la fonction complexe avant affichage
 
 --antialiasing=[arg]
-      Qualité de l'anti-crénelage. Une image avec un anti-crénelage de qualité n prendra n^2 fois plus de temps à être calculée. Maximum conseillé : 4 
+      Qualité de l'anti-crénelage. Une image avec un anti-crénelage de qualité n prendra n^2 fois plus de temps à être calculée. Maximum conseillé : 4
+      
+--singlethread
+      Désactive le multi-threading
+
+--time
+      Affiche la durée du calcul de l'image
 
 --help
       Affiche l'aide
-``` 
+```
 
 ### Entrer un polynôme pour un ensemble de Julia
 On utilise la notation préfixe, avec les opérateurs binaires (complexe, complexe) `+`, `*`, `/`, un opérateur binaire (complexe, entier) `power` et les opétateurs unaires (complexe) `cos` et `sin`.

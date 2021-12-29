@@ -32,6 +32,8 @@ public class ImageGenerator {
 
   private float intensity;
 
+  private boolean isSingleThread;
+
   // pour arrêter les calculs
   private boolean interrupted = false;
 
@@ -138,8 +140,8 @@ public class ImageGenerator {
     }
   }
 
+  // valeurs par défaut
   public ImageGenerator() {
-    // valeurs par défaut
     zoom = 1;
     shiftX = 0;
     shiftY = 0;
@@ -147,6 +149,7 @@ public class ImageGenerator {
     threshold = 64;
     antiAliasAmount = 2;
     intensity = 1;
+    isSingleThread = false;
 
     x1 = -1;
     y1 = -1;
@@ -278,6 +281,10 @@ public class ImageGenerator {
     if (this.intensity < 1) this.intensity = 1;
   }
 
+  public void setIsSingleThread(boolean bool) {
+    isSingleThread = bool;
+  }
+
   // getters
   public int getWidth() {
     return width;
@@ -383,6 +390,7 @@ public class ImageGenerator {
     BufferedImage smol = null;
 
     int threadsNb = Runtime.getRuntime().availableProcessors();
+    if (isSingleThread) threadsNb = 1;
 
     if (antiAliasing) {
       smol = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);

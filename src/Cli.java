@@ -6,6 +6,7 @@ public class Cli {
 
     boolean isMandelbrot = false;
     boolean makeTextFile = false;
+    boolean printTime = false;
 
     int iterations = 1000;
 
@@ -68,6 +69,12 @@ public class Cli {
           imgg.setAntiAliasing(true);
           imgg.setAntiAliasingAmount(Integer.parseInt(sa[1]));
           break;
+        case "--singlethread":
+          imgg.setIsSingleThread(true);
+          break;
+        case "--time":
+          printTime = true;
+          break;
         case "--help":
           usage();
           System.exit(0);
@@ -90,10 +97,15 @@ public class Cli {
         System.exit(1);
       }
     }
+
     imgg.setFractalGenerationFunction(func);
+    double time1 = System.currentTimeMillis();
     imgg.generateBuffer();
+    double time2 = System.currentTimeMillis();
     imgg.createImage(output);
     if (makeTextFile) imgg.createTextFile(output);
+    if (printTime)
+      System.out.println("Fractale générée en " + ((time2 - time1) / 1000) + " secondes");
   }
 
   private void usage() {
@@ -132,6 +144,10 @@ public class Cli {
             + "  --antialiasing=[arg]\n"
             + "        Qualité de l'anti-crénelage. Une image avec un anti-crénelage de qualité\n"
             + "        n prendra n^2 fois plus de temps à être calculée. Maximum conseillé : 4\n\n"
+            + "  --singlethread\n"
+            + "        Désactive le multi-threading\n\n"
+            + "  --time\n"
+            + "        Affiche la durée du calcul de l'image\n\n"
             + "  --help\n"
             + "        Affiche l'aide\n");
   }
