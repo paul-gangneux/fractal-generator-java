@@ -429,6 +429,7 @@ public class ImageGenerator {
   public void createTextFile(String pathname) {
     applyZoom();
     applyShift();
+    if (pathname.endsWith(".png")) pathname = pathname.substring(0, pathname.length() - 4);
     if (!pathname.endsWith(".txt")) pathname = pathname + ".txt";
     File file = new File(pathname);
     FileWriter w = null;

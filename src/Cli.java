@@ -117,10 +117,10 @@ public class Cli {
             + "  --output=[arg]\n"
             + "        Nom de sortie de l'image\n\n"
             + "  --mandelbrot\n"
-            + "        Créer une representation d'un ensemble de mandelbrot.\n\n"
+            + "        Crée une representation d'un ensemble de mandelbrot\n\n"
             + "  --julia=[arg]\n"
             + "        Crée une representation d'un ensemble de Julia utilisant la fonction\n"
-            + "        fournie à l'argument.\n\n"
+            + "        fournie à l'argument\n\n"
             + "  --text\n"
             + "        Crée un fichier texte décrivant la fractale\n\n"
             + "  --intensity=[arg]\n"
@@ -130,7 +130,8 @@ public class Cli {
             + "  --iterations=[arg]\n"
             + "        Nombre d'itérations de la fonction complexe avant affichage\n\n"
             + "  --antialiasing=[arg]\n"
-            + "        Qualité de l'anti-crénelage\n\n"
+            + "        Qualité de l'anti-crénelage. Une image avec un anti-crénelage de qualité\n"
+            + "        n prendra n^2 fois plus de temps à être calculée. Maximum conseillé : 4\n\n"
             + "  --help\n"
             + "        Affiche l'aide\n");
   }
