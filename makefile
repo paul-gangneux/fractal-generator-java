@@ -1,9 +1,13 @@
-Main: images src/Main.java
+fractalmaker.jar: all 
+	jar cfe fractalmaker.jar Main -C bld/ .
+
+.PHONY: all
+all: images src/Main.java
 	javac src/*.java -d bld/
 
 ./PHONY: clean
 clean:
-	rm -fr bld/* images/*
+	rm -fr bld/* images/* fractalmaker.jar
 
 images:
 	mkdir images/

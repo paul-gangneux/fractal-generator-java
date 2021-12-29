@@ -68,6 +68,10 @@ public class Cli {
           imgg.setAntiAliasing(true);
           imgg.setAntiAliasingAmount(Integer.parseInt(sa[1]));
           break;
+        case "--help":
+          usage();
+          System.exit(0);
+          break;
         default:
           usage();
           System.exit(1);
@@ -95,16 +99,19 @@ public class Cli {
   private void usage() {
     System.err.println(
         "\n"
+            + "Fractalmaker: générateur de fractales\n\n"
+            + "  Utilisation:  java -jar fractalmaker.jar [arguments]\n\n"
+            + "  Si aucun argument n'est donné, lance l'interface graphique\n\n"
             + "Arguments: \n\n"
             + "  --width=[arg] --height=[arg]\n"
-            + "        Largeur et hauteur de l'image\n\n"
+            + "        Largeur et hauteur de l'image. Modifie aussi x1, y1, x2 et y2\n\n"
             + "  --zoom=[arg]\n"
             + "        Zoom de l'image. Plus le nombre est proche de 0, plus le zoom est grand\n\n"
             + "  --shiftx=[arg] --shifty=[arg]\n"
             + "        Decalage de l'image sur X et Y\n\n"
             + "  --x1=[arg] --y1=[arg] --x2=[arg] --y2=[arg]\n"
             + "        Coordonnées des points opposés du rectangle représenté sur le plan\n"
-            + "        complexe\n\n"
+            + "        complexe. Modifie la taille de l'image\n\n"
             + "  --step=[arg]\n"
             + "        Pas de discrétisation. Plus il est petit, plus l'image est grande\n\n"
             + "  --output=[arg]\n"
@@ -112,10 +119,10 @@ public class Cli {
             + "  --mandelbrot\n"
             + "        Créer une representation d'un ensemble de mandelbrot.\n\n"
             + "  --julia=[arg]\n"
-            + "        Créer une representation d'un ensemble de Julia utilisant la fonction\n"
+            + "        Crée une representation d'un ensemble de Julia utilisant la fonction\n"
             + "        fournie à l'argument.\n\n"
             + "  --text\n"
-            + "        Créer un fichier texte décrivant la fractale\n\n"
+            + "        Crée un fichier texte décrivant la fractale\n\n"
             + "  --intensity=[arg]\n"
             + "        Intensité de l'affichage\n\n"
             + "  --luminosity\n"
@@ -123,6 +130,8 @@ public class Cli {
             + "  --iterations=[arg]\n"
             + "        Nombre d'itérations de la fonction complexe avant affichage\n\n"
             + "  --antialiasing=[arg]\n"
-            + "        Qualité de l'anti-crénelage\n");
+            + "        Qualité de l'anti-crénelage\n\n"
+            + "  --help\n"
+            + "        Affiche l'aide\n");
   }
 }
