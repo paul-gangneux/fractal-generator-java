@@ -30,7 +30,37 @@ public class Complex {
     return new Complex(newA, newB);
   }
 
+  public Complex divide(Complex c) {
+    double d = c.getA() * c.getA() + c.getB() * c.getB();
+    double newA = (a * c.getA() + b * c.getB()) / d;
+    double newB = (b * c.getA() - a * c.getB()) / d;
+
+    return new Complex(newA, newB);
+  }
+
   public double abs() {
     return Math.sqrt(a * a + b * b);
+  }
+
+  public Complex cos() {
+    double newA = Math.cos(a) * Math.cosh(b);
+    double newB = -Math.sin(a) * Math.sinh(b);
+
+    return new Complex(newA, newB);
+  }
+
+  public Complex sin() {
+    double newA = Math.sin(a) * Math.cosh(b);
+    double newB = Math.cos(a) * Math.sinh(b);
+
+    return new Complex(newA, newB);
+  }
+
+  public Complex power(int n) {
+    Complex c = new Complex(a, b);
+    for (int i = 1; i < n; i++) {
+      c = c.multiply(this);
+    }
+    return c;
   }
 }

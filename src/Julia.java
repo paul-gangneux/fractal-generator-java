@@ -9,28 +9,30 @@ import java.util.function.Function;
 // TwoDoublesToInt func = Julia.JuliaFactory(1000, 0, 2, f);
 // ig.create(func, "images/image.png");
 
-public class Julia implements TwoDoublesToInt {
+public class Julia implements FractalFunction {
   private int max = 1000;
   private int min = 0;
   private int radius = 2;
   private String functionString = "+ * z z c -0.729 0.1889";
   private Function<Complex, Complex> func = z -> z.multiply(z).add(new Complex(-0.729, 0.1889));
 
-  public static Julia JuliaFactory(int max, int min, int radius, String functionString)
+  public Julia(int max, int min, int radius, String functionString)
       throws IllegalArgumentException {
     Function<Complex, Complex> f = Julia.parseFxFromString(functionString);
     if (f == null) throw new IllegalArgumentException();
-    Julia x = new Julia();
-    x.max = max;
-    x.min = min;
-    x.radius = radius;
-    x.functionString = functionString;
-    x.func = f;
-    return x;
+    this.max = max;
+    this.min = min;
+    this.radius = radius;
+    this.functionString = functionString;
+    this.func = f;
   }
 
-  public static Julia JuliaFactory(int max, String functionString) throws IllegalArgumentException {
-    return Julia.JuliaFactory(max, 0, 2, functionString);
+  public Julia(int max, String functionString) throws IllegalArgumentException {
+    this(max, 0, 2, functionString);
+  }
+
+  public Julia() throws IllegalArgumentException {
+    this(1000, 0, 2, "+ * z z c -0.729 0.1889");
   }
 
   public String getFunctionString() {
@@ -79,6 +81,12 @@ public class Julia implements TwoDoublesToInt {
         if (f3 == null || f4 == null) return null;
         f = z -> (f3.apply(z)).multiply(f4.apply(z));
         break;
+      case "/":
+        Function<Complex, Complex> f8 = recursiveParse(formula);
+        Function<Complex, Complex> f9 = recursiveParse(formula);
+        if (f8 == null || f9 == null) return null;
+        f = z -> (f8.apply(z)).divide(f9.apply(z));
+        break;
       case "c":
         double d1 = Double.parseDouble(formula.pop());
         double d2 = Double.parseDouble(formula.pop());
@@ -86,6 +94,22 @@ public class Julia implements TwoDoublesToInt {
         break;
       case "z":
         f = z -> z;
+        break;
+      case "cos":
+        Function<Complex, Complex> f5 = recursiveParse(formula);
+        if (f5 == null) return null;
+        f = z -> (f5.apply(z)).cos();
+        break;
+      case "sin":
+        Function<Complex, Complex> f6 = recursiveParse(formula);
+        if (f6 == null) return null;
+        f = z -> (f6.apply(z)).sin();
+        break;
+      case "power":
+        Function<Complex, Complex> f7 = recursiveParse(formula);
+        int n = Integer.parseInt(formula.pop());
+        if (f7 == null) return null;
+        f = z -> (f7.apply(z)).power(n);
         break;
       default:
         return null;

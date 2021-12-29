@@ -14,7 +14,7 @@ public class ImageGenerator {
   private int width, height;
   private double zoom;
   private double shiftX, shiftY;
-  private TwoDoublesToInt function;
+  private FractalFunction function;
   private BufferedImage image;
   private int antiAliasAmount; // taux d'anti-crénelage
 
@@ -27,8 +27,10 @@ public class ImageGenerator {
 
   private boolean antiAliasing; // vrai si l'anti-crénelage est actif
 
-  private HashMap<String, ThreeIntToInt> drawFunctionMap = new HashMap<>();
-  private ThreeIntToInt currentDrawFunction;
+  private HashMap<String, DrawFunction> drawFunctionMap = new HashMap<>();
+  private DrawFunction currentDrawFunction;
+
+  private float intensity;
 
   // pour arrêter les calculs
   private boolean interrupted = false;
@@ -64,7 +66,7 @@ public class ImageGenerator {
           for (int j = hmin; j < hmax; j++) {
             if (interrupted) return;
             int val = function.doublesToInt(x, y);
-            int col = currentDrawFunction.apply(val, min, max);
+            int col = currentDrawFunction.apply(val, min, max, intensity);
             image.setRGB(i, j, col);
             y += step * zoom;
           }
@@ -144,6 +146,7 @@ public class ImageGenerator {
     antiAliasing = false;
     threshold = 64;
     antiAliasAmount = 2;
+    intensity = 1;
 
     x1 = -1;
     y1 = -1;
@@ -157,24 +160,24 @@ public class ImageGenerator {
 
     drawFunctionMap.put(
         "Teinte",
-        (int val, int min, int max) -> {
+        (int val, int min, int max, float in) -> {
           if (val < min || val > max) return 0x000000; // cas erreur
           if (val == max) return 0;
-          return Color.HSBtoRGB((float) (val + min) / max, 0.8f, 0.7f);
+          return Color.HSBtoRGB((val + min) * in / max, 0.8f, 0.7f);
         });
 
     drawFunctionMap.put(
         "Luminosité",
-        (int val, int min, int max) -> {
+        (int val, int min, int max, float in) -> {
           if (val > max || val < min) return 0xff0000; // cas erreur
           if (val == max) return 0xaaccff;
-          val = 255 * (val + min) / max;
+          val = 255 * (int) ((val + min) * in) / max;
           return rgbToInt(val, val, val);
         });
 
     drawFunctionMap.put(
         null,
-        (int a, int b, int c) -> {
+        (int a, int b, int c, float d) -> {
           return 0;
         });
 
@@ -232,6 +235,22 @@ public class ImageGenerator {
     height = (int) ((y2 - y1) / step);
   }
 
+  public void setX1(double x) {
+    setPoint1(x, y1);
+  }
+
+  public void setY1(double y) {
+    setPoint1(x1, y);
+  }
+
+  public void setX2(double x) {
+    setPoint2(x, y2);
+  }
+
+  public void setY2(double y) {
+    setPoint2(x2, y);
+  }
+
   public void setStep(double d) {
     if (d <= 0) return;
     step = d;
@@ -250,8 +269,13 @@ public class ImageGenerator {
     currentDrawFunction = drawFunctionMap.get(functionDesc);
   }
 
-  public void setFractalGenerationFunction(TwoDoublesToInt f) {
+  public void setFractalGenerationFunction(FractalFunction f) {
     function = f;
+  }
+
+  public void setIntensity(float intensity) {
+    this.intensity = intensity;
+    if (this.intensity < 1) this.intensity = 1;
   }
 
   // getters
@@ -307,12 +331,16 @@ public class ImageGenerator {
     return y2;
   }
 
-  public TwoDoublesToInt getFunction() {
+  public FractalFunction getFunction() {
     return function;
   }
 
+  public float getIntensity() {
+    return intensity;
+  }
+
   public String getCurrentDrawFunctionString() {
-    for (Map.Entry<String, ThreeIntToInt> entry : drawFunctionMap.entrySet()) {
+    for (Map.Entry<String, DrawFunction> entry : drawFunctionMap.entrySet()) {
       if (currentDrawFunction == entry.getValue()) return entry.getKey();
     }
     return null;
@@ -401,6 +429,7 @@ public class ImageGenerator {
   public void createTextFile(String pathname) {
     applyZoom();
     applyShift();
+    if (pathname.endsWith(".png")) pathname = pathname.substring(0, pathname.length() - 4);
     if (!pathname.endsWith(".txt")) pathname = pathname + ".txt";
     File file = new File(pathname);
     FileWriter w = null;
@@ -439,8 +468,11 @@ public class ImageGenerator {
             + "  anti-crénelage : "
             + ((antiAliasing) ? ("x" + antiAliasAmount) : "aucun")
             + "\n"
-            + "  fonction d'affichage : "
+            + "  fonction d'affichage :\n    "
             + getCurrentDrawFunctionString()
+            + "\n"
+            + "    intensité : "
+            + getIntensity()
             + "\n";
     try {
       file.createNewFile();

@@ -32,6 +32,9 @@ public class ImageButtonPanel extends JPanel {
   private JFormattedTextField point2r = makeTextFieldForFloat(8);
   private JFormattedTextField point2i = makeTextFieldForFloat(8);
 
+  // intensité d'affichage
+  private JFormattedTextField intensityField = makeTextFieldForFloat(8);
+
   /*
   les spinners effectuent leurs actions même quand ils sont
   modifiés par le programme et non pas l'utilisateur,
@@ -54,10 +57,10 @@ public class ImageButtonPanel extends JPanel {
     ((JSpinner.DefaultEditor) (hspin.getEditor())).getTextField().setColumns(4);
     ((JSpinner.DefaultEditor) (wspin.getEditor())).getTextField().setColumns(4);
 
-    sizeButtons.add(new JLabel("H"));
-    sizeButtons.add(hspin);
-    sizeButtons.add(new JLabel(" L"));
+    sizeButtons.add(new JLabel("L"));
     sizeButtons.add(wspin);
+    sizeButtons.add(new JLabel(" H"));
+    sizeButtons.add(hspin);
 
     // bouttons zoom
     JPanel zoomButtons = new JPanel();
@@ -116,7 +119,8 @@ public class ImageButtonPanel extends JPanel {
           onAction();
         });
 
-    addActionListenerToTextFields(zoomLevel, step, point1r, point2r, point1i, point2i);
+    addActionListenerToTextFields(
+        zoomLevel, step, point1r, point2r, point1i, point2i, intensityField);
     addActionListenerToSpinners(hspin, wspin);
 
     antiAliBox.addActionListener(
@@ -155,6 +159,8 @@ public class ImageButtonPanel extends JPanel {
     this.add(coordButtons2);
     this.add(new JLabel("fonction d'affichage:"));
     this.add(drawOptionBox);
+    this.add(new JLabel("intensité:"));
+    this.add(intensityField);
 
     Border bo = BorderFactory.createLineBorder(new Color(0.4f, 0.4f, 0.4f));
     Border bo2 = BorderFactory.createTitledBorder(bo, "image");
@@ -174,6 +180,7 @@ public class ImageButtonPanel extends JPanel {
     point2i.setEnabled(bool);
     antiAliBox.setEnabled(bool);
     drawOptionBox.setEnabled(bool);
+    intensityField.setEnabled(bool);
   }
 
   private void updateAllValuesInIG() {
@@ -182,6 +189,7 @@ public class ImageButtonPanel extends JPanel {
     ig.setPoint1(Double.parseDouble(point1r.getText()), Double.parseDouble(point1i.getText()));
     ig.setPoint2(Double.parseDouble(point2r.getText()), Double.parseDouble(point2i.getText()));
     ig.setStep(Double.parseDouble(step.getText()));
+    ig.setIntensity(Float.parseFloat(intensityField.getText()));
 
     int aai = antiAliBox.getSelectedIndex();
     if (aai <= 0) ig.setAntiAliasing(false);
@@ -201,6 +209,7 @@ public class ImageButtonPanel extends JPanel {
     point2r.setValue(ig.getX2());
     point2i.setValue(ig.getY2());
     step.setValue(ig.getStep());
+    intensityField.setValue(ig.getIntensity());
     antiAliBox.getUI().setPopupVisible(antiAliBox, false);
     drawOptionBox.getUI().setPopupVisible(antiAliBox, false);
   }

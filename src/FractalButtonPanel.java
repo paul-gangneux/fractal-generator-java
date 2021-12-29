@@ -6,7 +6,7 @@ public class FractalButtonPanel extends JPanel {
 
   private transient ImageGenerator ig;
   private FractalImage fractal;
-  private transient TwoDoublesToInt function;
+  private transient FractalFunction function;
 
   private JComboBox<String> fractalOptions = new JComboBox<>(new String[] {"Julia", "Mandelbrot"});
   private JSpinner iterations = new JSpinner();
@@ -18,7 +18,7 @@ public class FractalButtonPanel extends JPanel {
   boolean allowSpinner = true;
 
   public FractalButtonPanel(
-      ImageGenerator imageGenerator, FractalImage fractalImage, TwoDoublesToInt fun, Gui gui) {
+      ImageGenerator imageGenerator, FractalImage fractalImage, FractalFunction fun, Gui gui) {
     this.function = fun;
     this.ig = imageGenerator;
     this.fractal = fractalImage;
@@ -38,7 +38,7 @@ public class FractalButtonPanel extends JPanel {
           switch (s) {
             case "Julia":
               try {
-                function = Julia.JuliaFactory((Integer) iterations.getValue(), juliaFunc.getText());
+                function = new Julia((Integer) iterations.getValue(), juliaFunc.getText());
               } catch (IllegalArgumentException ex) {
                 function = new Julia();
               }
@@ -76,7 +76,7 @@ public class FractalButtonPanel extends JPanel {
     juliaFunc.addActionListener(
         e -> {
           try {
-            function = Julia.JuliaFactory((Integer) iterations.getValue(), juliaFunc.getText());
+            function = new Julia((Integer) iterations.getValue(), juliaFunc.getText());
             errorFormat.setVisible(false);
             ig.setFractalGenerationFunction(function);
             fractal.recalculate();

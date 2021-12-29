@@ -1,4 +1,4 @@
-public class Mandelbrot implements TwoDoublesToInt {
+public class Mandelbrot implements FractalFunction {
 
   private int max = 500;
 
