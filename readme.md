@@ -84,4 +84,4 @@ On a également l’entrée de la fonction `z`.
 On représente donc f(z) = z\*z+(-0.729 + 0.1889i) comme ceci:
     `+ * z z c -0.729 0.1889`, équivalent à `+ power z 2 c -0.729 0.1889`
 
-Un appel typique serait donc `java -classpath bld Main --julia="+ * z z c -0.729 0.1889"`
+Un appel typique serait donc `java -jar fractalmaker.jar --julia="+ * z z c -0.729 0.1889"`
