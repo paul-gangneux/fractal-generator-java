@@ -1,5 +1,6 @@
-fractalmaker.jar: bld/Main.class images
+fractalmaker.jar: bld/Main.class | images
 	jar cfe fractalmaker.jar Main -C bld/ .
+	chmod u+x fractalmaker.jar
 
 bld/Main.class: src/*.java
 	javac src/*.java -d bld/
