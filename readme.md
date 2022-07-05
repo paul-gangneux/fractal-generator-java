@@ -2,7 +2,9 @@
 
 ## À propos
 
-Ce programme est un générateur de fractales utilisant les ensembles de Julia et de Mandelbrot, fait à l'occasion d'un projet étudiant de 3eme année de licence informatique générale.
+Ce programme est un générateur de fractales utilisant les ensembles de Julia et de Mandelbrot, fait à l'occasion d'un projet étudiant de 3eme année de licence informatique générale, pour le cours Compléments de Programmation Orientée Objet.
+
+Le sujet précis de notre projet se trouve dans le fichier `projet cpoo.pdf`
 
 Programmé par Paul Gangneux et Olivier Moreau.
 
