@@ -2,3 +2,4 @@ bld/
 images/
 src/TestMain.java
 fractalmaker.jar
+.vscode
